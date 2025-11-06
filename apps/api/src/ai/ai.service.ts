@@ -195,7 +195,9 @@ export class AiService {
           endTime: null,
         },
         create: {
-          // 如果不存在，创建新会话
+          // ✅ 修复：显式设置id为session_id（业务ID），统一ID体系
+          // 避免AI服务需要传递prisma_session_id的复杂性
+          id: dto.session_id,
           sessionId: dto.session_id,
           examResultId: dto.exam_result_id,
           clientInfo: dto.client_info as any,
@@ -271,21 +273,33 @@ export class AiService {
 
   /**
    * 保存聚合分析结果
+   * ✅ 修复：直接使用业务ID (session_id)，无需查询Prisma主键
+   * ✅ 使用upsert支持重复写入（幂等性）
    */
   async saveAggregate(dto: SaveAggregateDto) {
-    // 先查找会话ID
-    const session = await this.db.aiSession.findFirst({
-      where: { sessionId: dto.session_id },
-      select: { id: true },
-    });
-
-    if (!session) {
-      throw new NotFoundException(`AI session not found: ${dto.session_id}`);
-    }
-
-    return this.db.aiAnalysisAggregate.create({
-      data: {
-        sessionId: session.id,
+    return this.db.aiAnalysisAggregate.upsert({
+      where: {
+        examResultId: dto.exam_result_id,
+      },
+      update: {
+        // 更新所有分析字段
+        avgValence: dto.avg_valence,
+        avgArousal: dto.avg_arousal,
+        dominantEmotion: dto.dominant_emotion,
+        emotionDistribution: dto.emotion_distribution as any,
+        avgAttention: dto.avg_attention,
+        attentionVariability: dto.attention_variability,
+        distractionEvents: dto.distraction_events,
+        engagementScore: dto.engagement_score,
+        consistencyScore: dto.consistency_score,
+        avgHeartRate: dto.avg_heart_rate,
+        heartRateVariability: dto.heart_rate_variability,
+        stressIndicators: dto.stress_indicators as any,
+        dataQuality: dto.data_quality,
+        analysisConfidence: dto.analysis_confidence,
+      },
+      create: {
+        sessionId: dto.session_id,  // ✅ 直接使用业务ID（schema修改后有效）
         examResultId: dto.exam_result_id,
         // 情绪分析
         avgValence: dto.avg_valence,

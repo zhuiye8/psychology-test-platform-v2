@@ -29,6 +29,7 @@ export class LLMClientService {
   private readonly defaultModel: string;
   private readonly maxRetries = 3;
   private readonly isOpenRouter: boolean;
+  private readonly timeoutMs: number;
 
   constructor(private readonly config: ConfigService) {
     // 优先使用LLM_API_KEY，向后兼容OPENROUTER_API_KEY
@@ -49,11 +50,14 @@ export class LLMClientService {
       this.config.get<string>('OPENROUTER_MODEL', 'deepseek/deepseek-chat'),
     );
 
+    // ✅ 超时配置：默认120秒（适应外部LLM API，如DeepSeek/OpenRouter）
+    this.timeoutMs = this.config.get<number>('LLM_TIMEOUT_MS', 120000);
+
     if (!this.apiKey) {
       this.logger.warn('LLM_API_KEY not configured, LLM features disabled');
     } else {
       this.logger.log(
-        `LLM Client initialized: ${this.isOpenRouter ? 'OpenRouter' : 'Official API'} (${this.baseUrl})`,
+        `LLM Client initialized: ${this.isOpenRouter ? 'OpenRouter' : 'Official API'} (${this.baseUrl}), timeout: ${this.timeoutMs}ms`,
       );
     }
   }
@@ -85,44 +89,63 @@ export class LLMClientService {
 
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        // 构建headers（OpenRouter需要额外字段）
-        const headers: Record<string, string> = {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        };
+        // ✅ 创建超时控制器
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 
-        if (this.isOpenRouter) {
-          headers['HTTP-Referer'] = 'https://psychology-platform.local';
-          headers['X-Title'] = 'Psychology Test Platform';
+        try {
+          // 构建headers（OpenRouter需要额外字段）
+          const headers: Record<string, string> = {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          };
+
+          if (this.isOpenRouter) {
+            headers['HTTP-Referer'] = 'https://psychology-platform.local';
+            headers['X-Title'] = 'Psychology Test Platform';
+          }
+
+          const response = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              model,
+              messages,
+              temperature,
+              max_tokens: maxTokens,
+            }),
+            signal: controller.signal, // ✅ 添加超时信号
+          });
+
+          // ✅ 清除超时计时器
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`LLM API error: ${response.status} - ${error}`);
+          }
+
+          const data = await response.json();
+
+          return {
+            content: data.choices[0].message.content,
+            tokensUsed: data.usage.total_tokens,
+            model: data.model,
+          };
+        } finally {
+          // ✅ 确保清除超时计时器（即使出错）
+          clearTimeout(timeoutId);
         }
-
-        const response = await fetch(`${this.baseUrl}/chat/completions`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            model,
-            messages,
-            temperature,
-            max_tokens: maxTokens,
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.text();
-          throw new Error(`LLM API error: ${response.status} - ${error}`);
-        }
-
-        const data = await response.json();
-
-        return {
-          content: data.choices[0].message.content,
-          tokensUsed: data.usage.total_tokens,
-          model: data.model,
-        };
       } catch (error) {
         lastError = error as Error;
+
+        // ✅ 区分超时错误和其他错误
+        const errorMessage = error.name === 'AbortError'
+          ? `LLM request timeout (${this.timeoutMs}ms)`
+          : error.message;
+
         this.logger.warn(
-          `LLM request failed (attempt ${attempt}/${this.maxRetries}): ${error.message}`,
+          `LLM request failed (attempt ${attempt}/${this.maxRetries}): ${errorMessage}`,
         );
 
         if (attempt < this.maxRetries) {

@@ -19998,7 +19998,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -20017,7 +20017,7 @@ export namespace Prisma {
   }
 
   export type AiSessionUncheckedCreateInput = {
-    id?: string
+    id: string
     sessionId: string
     examResultId?: string | null
     status?: $Enums.AiSessionStatus
@@ -20074,7 +20074,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateManyInput = {
-    id?: string
+    id: string
     sessionId: string
     examResultId?: string | null
     status?: $Enums.AiSessionStatus
@@ -24350,7 +24350,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateWithoutExamResultInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -24368,7 +24368,7 @@ export namespace Prisma {
   }
 
   export type AiSessionUncheckedCreateWithoutExamResultInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -25126,7 +25126,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateWithoutAggregateInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -25144,7 +25144,7 @@ export namespace Prisma {
   }
 
   export type AiSessionUncheckedCreateWithoutAggregateInput = {
-    id?: string
+    id: string
     sessionId: string
     examResultId?: string | null
     status?: $Enums.AiSessionStatus
@@ -25326,7 +25326,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateWithoutAnomaliesInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -25344,7 +25344,7 @@ export namespace Prisma {
   }
 
   export type AiSessionUncheckedCreateWithoutAnomaliesInput = {
-    id?: string
+    id: string
     sessionId: string
     examResultId?: string | null
     status?: $Enums.AiSessionStatus
@@ -25414,7 +25414,7 @@ export namespace Prisma {
   }
 
   export type AiSessionCreateWithoutCheckpointsInput = {
-    id?: string
+    id: string
     sessionId: string
     status?: $Enums.AiSessionStatus
     startTime?: Date | string
@@ -25432,7 +25432,7 @@ export namespace Prisma {
   }
 
   export type AiSessionUncheckedCreateWithoutCheckpointsInput = {
-    id?: string
+    id: string
     sessionId: string
     examResultId?: string | null
     status?: $Enums.AiSessionStatus

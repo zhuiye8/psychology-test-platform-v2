@@ -119,6 +119,83 @@ export default function AiLivePage() {
         </Space>
       </div>
 
+      {/* 🔧 诊断面板 - 显示WebSocket连接状态 */}
+      <div style={{
+        position: 'fixed',
+        bottom: 20,
+        right: 20,
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#00ff00',
+        padding: '16px',
+        borderRadius: '8px',
+        fontSize: '13px',
+        zIndex: 9999,
+        fontFamily: 'Monaco, Consolas, monospace',
+        border: '2px solid #00ff00',
+        boxShadow: '0 0 20px rgba(0, 255, 0, 0.3)',
+        minWidth: '280px',
+      }}>
+        <div style={{
+          marginBottom: '12px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          borderBottom: '1px solid #00ff00',
+          paddingBottom: '8px',
+        }}>
+          🔧 实时诊断面板
+        </div>
+        <div style={{ lineHeight: '1.8' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>WebSocket:</span>
+            <span style={{
+              color: realtimeStream?.connected ? '#00ff00' : '#ff0000',
+              fontWeight: 'bold'
+            }}>
+              {realtimeStream?.connected ? '✅ 已连接' : '❌ 未连接'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>数据点:</span>
+            <span style={{ color: '#00ffff' }}>
+              {realtimeStream?.dataPointsCount || 0}
+            </span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>最新数据:</span>
+            <span style={{
+              color: realtimeStream?.latestData ? '#00ff00' : '#ffff00'
+            }}>
+              {realtimeStream?.latestData
+                ? `${realtimeStream.latestData.data_type}`
+                : '无'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>SessionID:</span>
+            <span style={{
+              color: data.currentStudent ? '#00ffff' : '#666',
+              fontSize: '11px',
+              wordBreak: 'break-all',
+              maxWidth: '150px',
+            }}>
+              {data.currentStudent?.id || '未选择'}
+            </span>
+          </div>
+          {realtimeStream?.error && (
+            <div style={{
+              marginTop: '8px',
+              padding: '8px',
+              background: 'rgba(255, 0, 0, 0.2)',
+              borderRadius: '4px',
+              color: '#ff6666',
+              fontSize: '11px',
+            }}>
+              ⚠️ {realtimeStream.error}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* 主要内容区域 - 三栏响应式布局 */}
       <div className="main-layout" style={{
         display: 'grid',

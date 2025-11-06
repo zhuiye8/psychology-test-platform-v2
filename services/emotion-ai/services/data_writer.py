@@ -84,7 +84,7 @@ class DataWriter:
 
     async def update_session_status(
         self,
-        prisma_session_id: str,
+        session_id: str,  # ✅ 修复：参数重命名
         status: str,
         end_time: Optional[datetime] = None,
     ) -> Dict[str, Any]:
@@ -92,27 +92,27 @@ class DataWriter:
         更新会话状态
 
         Args:
-            prisma_session_id: Prisma数据库中的会话ID（不是sessionId字符串）
+            session_id: 会话ID（统一使用业务ID）
             status: 状态（CREATED, ANALYZING, COMPLETED, FAILED）
             end_time: 结束时间
 
         Returns:
             更新后的会话数据
         """
-        url = f"{self.backend_url}/api/ai/sessions/{prisma_session_id}/status"
+        url = f"{self.backend_url}/api/ai/sessions/{session_id}/status"
         payload = {
             "status": status,
         }
         if end_time:
             payload["end_time"] = end_time.isoformat()
 
-        logger.info("updating_session_status", prisma_id=prisma_session_id, status=status)
+        logger.info("updating_session_status", session_id=session_id, status=status)
 
         try:
             response = await self.client.patch(url, json=payload)
             response.raise_for_status()
             data = response.json()
-            logger.info("session_status_updated", prisma_id=prisma_session_id, status=status)
+            logger.info("session_status_updated", session_id=session_id, status=status)
             return data.get("data", {})
         except httpx.HTTPStatusError as e:
             logger.error("update_status_failed", error=str(e), status_code=e.response.status_code)
@@ -172,7 +172,7 @@ class DataWriter:
 
     async def update_session_file_info(
         self,
-        prisma_session_id: str,
+        session_id: str,  # ✅ 修复：参数重命名
         file_path: str,
         checkpoint_count: int,
         file_size: int
@@ -181,7 +181,7 @@ class DataWriter:
         更新会话的文件信息（调用后端API）
 
         Args:
-            prisma_session_id: Prisma数据库中的会话ID
+            session_id: 会话ID（统一使用业务ID）
             file_path: 检查点文件相对路径
             checkpoint_count: 数据点数量
             file_size: 文件大小（字节）
@@ -189,7 +189,7 @@ class DataWriter:
         Returns:
             更新后的会话数据
         """
-        url = f"{self.backend_url}/api/ai/sessions/{prisma_session_id}/file-info"
+        url = f"{self.backend_url}/api/ai/sessions/{session_id}/file-info"
         payload = {
             "checkpoint_file_path": file_path,
             "checkpoint_count": checkpoint_count,
@@ -198,7 +198,7 @@ class DataWriter:
 
         logger.info(
             "updating_session_file_info",
-            prisma_id=prisma_session_id,
+            session_id=session_id,
             file_path=file_path,
             count=checkpoint_count,
             size_kb=round(file_size / 1024, 2)
@@ -208,7 +208,7 @@ class DataWriter:
             response = await self.client.patch(url, json=payload)
             response.raise_for_status()
             data = response.json()
-            logger.info("session_file_info_updated", prisma_id=prisma_session_id)
+            logger.info("session_file_info_updated", session_id=session_id)
             return data.get("data", {})
         except httpx.HTTPStatusError as e:
             logger.error(

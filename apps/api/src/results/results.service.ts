@@ -747,18 +747,18 @@ export class ResultsService {
       return { success: true, message: 'Already cleaned' };
     }
 
-    // ✅ 修复：允许清理已完成考试的AI数据
+    // ✅ 修复竞态条件：已完成考试的AI session必须保留！
+    // 原因：
+    // 1. AI服务在后台异步计算聚合数据（需要1-2秒）
+    // 2. 如果立即删除session，保存aggregate时会触发Foreign Key约束错误
+    // 3. Session是AI分析的元数据，应该永久保留供后续查询
     if (examResult.isCompleted) {
-      // 已完成考试：仅删除AI会话数据，保留考试结果
-      this.logger.log(`[cleanupExamSession] 清理已完成考试的AI数据: ${examResultId}`);
-
-      await this.db.aiSession.deleteMany({
-        where: { examResultId },
-      });
+      // 已完成考试：不删除AI session，仅返回成功（幂等性）
+      this.logger.log(`[cleanupExamSession] 已完成考试，保留AI session: ${examResultId}`);
 
       return {
         success: true,
-        message: 'AI session cleaned for completed exam',
+        message: 'Completed exam cleanup skipped (AI session preserved)',
         examResultDeleted: false
       };
     }

@@ -114,12 +114,28 @@ export function useRealtimeAnalysis(
    * 处理实时AI数据流更新（新架构）
    */
   useEffect(() => {
-    if (!realtimeStream.latestData) return;
+    console.log('[useRealtimeAnalysis] 🔄 useEffect triggered:', {
+      hasLatestData: !!realtimeStream.latestData,
+      connected: realtimeStream.connected,
+      dataPointsCount: realtimeStream.dataPointsCount,
+      sessionId,
+    });
+
+    if (!realtimeStream.latestData) {
+      console.log('[useRealtimeAnalysis] ⏭️ No latestData, skipping');
+      return;
+    }
 
     const { data_type, data } = realtimeStream.latestData;
+    console.log('[useRealtimeAnalysis] 📥 Processing data:', {
+      data_type,
+      has_data: !!data,
+      data_keys: data ? Object.keys(data) : [],
+    });
 
     // 处理视频情绪数据（面部表情识别）
     if (data_type === 'video_emotion' && data?.emotion_scores) {
+      console.log('[useRealtimeAnalysis] 🎭 Processing video_emotion:', data);
       // 更新饼状图数据
       const emotions = Object.entries(data.emotion_scores).map(([name, value]) => ({
         name,
@@ -145,6 +161,7 @@ export function useRealtimeAnalysis(
 
     // 处理音频情绪数据（语音语调识别）
     if (data_type === 'audio_emotion' && data?.emotion_scores) {
+      console.log('[useRealtimeAnalysis] 🎤 Processing audio_emotion:', data);
       const emotions = Object.entries(data.emotion_scores).map(([name, value]) => ({
         name,
         value: typeof value === 'number' ? value : 0,
@@ -173,6 +190,7 @@ export function useRealtimeAnalysis(
 
     // 处理心率数据（PPG检测）
     if (data_type === 'heart_rate' && data?.heart_rate) {
+      console.log('[useRealtimeAnalysis] ❤️ Processing heart_rate:', data.heart_rate);
       setData((prev) => ({ ...prev, heartRate: data.heart_rate || null }));
     }
 
@@ -353,19 +371,28 @@ export function useRealtimeAnalysis(
     }
 
     setData((prev) => ({ ...prev, currentStudent: student }));
-    setSessionId(student.id);
+    // ✅ 修复：使用examId（对应ai_sessions.sessionId）而非student.id（对应ai_sessions.id）
+    // AI服务发布到Redis的channel是: ai:session:{sessionId}
+    // sessionId字段等于examResultId，即exam_results.id
+    setSessionId(student.examId);
 
     try {
       // 1. 获取session和aggregate数据
       console.log('[useRealtimeAnalysis] 获取session和aggregate数据...');
-      const [session, aggregate, anomalies] = await Promise.all([
-        aiApi.getSessionByResultId(student.examId),
+
+      // ✅ 先获取session，再用session.sessionId查询异常
+      const session = await aiApi.getSessionByResultId(student.examId);
+      console.log('[useRealtimeAnalysis] session:', session);
+
+      const [aggregate, anomalies] = await Promise.all([
         aiApi.getAggregateByResultId(student.examId).catch(() => null),
-        aiApi.getAnomaliesBySessionId(student.id).catch(() => []),
+        // ✅ 修复：AiAnomaly.sessionId 指向 AiSession.id（Prisma主键）
+        // 所以应该使用 session.id 而非 student.id 或 session.sessionId
+        session ? aiApi.getAnomaliesBySessionId(session.id).catch(() => []) : Promise.resolve([]),
       ]);
 
-      console.log('[useRealtimeAnalysis] session:', session);
       console.log('[useRealtimeAnalysis] aggregate:', aggregate);
+      console.log('[useRealtimeAnalysis] anomalies count:', anomalies.length);
 
       // 保存session和aggregate供VideoDisplay使用
       setCurrentSession(session);

@@ -349,7 +349,7 @@ export default function ResultDetailPage() {
           </Card>
         </Tabs.TabPane>
 
-        <Tabs.TabPane tab="AI实时数据" key="ai">
+        <Tabs.TabPane tab="AI情绪分析报告" key="ai">
           <AiAnalysisTab resultId={resultId} />
         </Tabs.TabPane>
 

@@ -4,6 +4,7 @@
 """
 
 import statistics
+import traceback
 from typing import Dict, Any, Optional, List
 from collections import Counter
 from utils.logger import get_logger
@@ -93,7 +94,19 @@ class CheckpointAggregator:
             return aggregate
 
         except Exception as e:
-            logger.error("aggregate_calculation_error", error=str(e), error_type=type(e).__name__)
+            # ⭐ 增强错误日志：添加详细的异常信息和堆栈跟踪
+            logger.error(
+                "aggregate_calculation_error",
+                session_id=checkpoint_data.get("session_id") if checkpoint_data else None,
+                error=str(e),
+                error_type=type(e).__name__,
+                error_traceback=traceback.format_exc(),
+                checkpoint_data_keys=list(checkpoint_data.keys()) if checkpoint_data else [],
+                video_emotions_count=len(checkpoint_data.get("video_emotions", [])) if checkpoint_data else 0,
+                audio_emotions_count=len(checkpoint_data.get("audio_emotions", [])) if checkpoint_data else 0,
+                heart_rate_count=len(checkpoint_data.get("heart_rate_data", [])) if checkpoint_data else 0,
+                message="❌ 聚合计算失败，返回None。请检查上述错误信息定位问题。"
+            )
             return None
 
     def _aggregate_emotion(self, emotion_points: List[Dict[str, Any]]) -> Dict[str, Any]:

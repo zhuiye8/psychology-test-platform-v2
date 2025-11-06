@@ -116,6 +116,21 @@ class CheckpointFileWriter:
                 return self._get_relative_path(file_path)
 
             # 创建初始JSON结构
+            logger.info(
+                "initializing_checkpoint_file",
+                session_id=session_id,
+                exam_result_id=exam_result_id,
+                has_exam_result_id=exam_result_id is not None
+            )
+
+            # 添加警告：如果exam_result_id为None
+            if exam_result_id is None:
+                logger.warning(
+                    "checkpoint_file_without_exam_result_id",
+                    session_id=session_id,
+                    message="Checkpoint文件将创建为exam_result_id=null，请确认是否为设备检测流程"
+                )
+
             initial_data = {
                 "session_id": session_id,
                 "exam_result_id": exam_result_id,

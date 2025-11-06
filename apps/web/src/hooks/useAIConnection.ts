@@ -86,6 +86,7 @@ export function useAIConnection(
   const lastParticipantIdRef = useRef<string>('');
   const lastResultIdRef = useRef<string>('');
   const lastDbSessionIdRef = useRef<string>(''); // ✅ 新增：保存数据库会话ID
+  const isInitializingRef = useRef(false); // ✅ 防重入守卫：防止React Strict Mode双重执行导致的重复初始化
 
   useEffect(() => {
     aiEnabledRef.current = aiEnabled;
@@ -134,11 +135,20 @@ export function useAIConnection(
 
   const initAISession = useCallback(
     async (examUuid: string, participantId: string, resultId?: string): Promise<string | null> => {
+      // ✅ 防重入守卫：防止React Strict Mode或useEffect重复触发导致并发初始化
+      if (isInitializingRef.current) {
+        console.log('[useAIConnection] ⚠️ 已在初始化中，跳过重复调用');
+        return null;
+      }
+
       if (!aiEnabledRef.current) {
         console.log('[useAIConnection] AI监控已禁用，跳过会话初始化');
         setWebrtcConnectionState({ status: 'disabled' });
         return null;
       }
+
+      // 设置初始化标志
+      isInitializingRef.current = true;
 
       try {
         const isDeviceCheck = !resultId;
@@ -256,8 +266,8 @@ export function useAIConnection(
           const response = await sessionResp.json();
           console.log('[useAIConnection] 完整响应数据:', JSON.stringify(response, null, 2));
 
-          // ✅ 正确访问：response.data.id（与 StartStreamResponse 保持一致）
-          dbSessionId = response.data?.id;
+          // ✅ 使用业务session_id（与examResultId一致），而非Prisma数据库id
+          dbSessionId = response.data?.session_id || response.data?.sessionId;
           console.log('[useAIConnection] 提取的 session ID:', dbSessionId, '(类型:', typeof dbSessionId, ')');
 
           if (!dbSessionId) {
@@ -301,6 +311,7 @@ export function useAIConnection(
               body: JSON.stringify({
                 stream_name: streamName,
                 session_id: dbSessionId,  // ✅ 核心修复：使用database session ID
+                exam_result_id: resultId || null,  // ✅ 修复：传递exam_result_id给AI服务
                 rtsp_url: `${mediamtxRtspUrl}/${streamName}`,
               }),
             });
@@ -359,6 +370,9 @@ export function useAIConnection(
           error: error instanceof Error ? error : new Error(String(error)),
         });
         return null;
+      } finally {
+        // ✅ 重置守卫标志，允许下次初始化
+        isInitializingRef.current = false;
       }
     },
     [mediaStream]
@@ -468,6 +482,9 @@ export function useAIConnection(
       initAISession,
       disconnect,
     }),
-    [aiAvailable, aiConfigLoading, webrtcConnectionState, sessionId, initAISession, disconnect]
+    // ✅ 修复：移除函数依赖（initAISession, disconnect）
+    // 函数引用通过useCallback保持稳定，不应作为useMemo的依赖项
+    // 否则会导致频繁重新创建对象，触发消费组件的useEffect循环执行
+    [aiAvailable, aiConfigLoading, webrtcConnectionState, sessionId]
   );
 }

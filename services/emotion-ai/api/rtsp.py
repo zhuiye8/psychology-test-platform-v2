@@ -64,7 +64,17 @@ async def start_rtsp_consumer(request: StartRTSPRequest):
         "api_start_rtsp_requested",
         stream_name=request.stream_name,
         session_id=request.session_id,
+        exam_result_id=request.exam_result_id,
+        has_exam_result_id=request.exam_result_id is not None,
     )
+
+    # 添加警告：如果exam_result_id为None，记录可能的问题
+    if request.exam_result_id is None:
+        logger.warning(
+            "exam_result_id_missing",
+            session_id=request.session_id,
+            message="exam_result_id为None，这可能是设备检测流程，或前端遗漏参数"
+        )
 
     try:
         manager = get_rtsp_manager()

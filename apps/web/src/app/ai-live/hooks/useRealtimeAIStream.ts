@@ -101,7 +101,9 @@ export function useRealtimeAIStream(
 
       // 连接成功
       socket.on('connect', () => {
-        console.log(`[useRealtimeAIStream] Connected to AI stream for session: ${sessionId}`);
+        console.log(`[useRealtimeAIStream] ✅ Connected to AI stream for session: ${sessionId}`);
+        console.log(`[useRealtimeAIStream] Socket URL: ${socketUrl}/ai-stream`);
+        console.log(`[useRealtimeAIStream] Transport: ${socket.io.engine.transport.name}`);
         setConnected(true);
         setError(null);
       });
@@ -113,7 +115,13 @@ export function useRealtimeAIStream(
 
       // 接收AI分析数据
       socket.on('ai-data', (data: AIStreamData) => {
-        console.log('[useRealtimeAIStream] Received AI data:', data);
+        console.log('[useRealtimeAIStream] 📊 Received AI data:', {
+          data_type: data.data_type,
+          session_id: data.session_id,
+          timestamp: data.timestamp,
+          has_data: !!data.data,
+          data_keys: data.data ? Object.keys(data.data) : [],
+        });
         setLatestData(data);
         setDataPointsCount((prev) => prev + 1);
       });
@@ -125,7 +133,13 @@ export function useRealtimeAIStream(
 
       // 连接错误
       socket.on('connect_error', (err) => {
-        console.error('[useRealtimeAIStream] Connection error:', err);
+        console.error('[useRealtimeAIStream] ❌ Connection error:', {
+          message: err.message,
+          description: err.description,
+          type: err.type,
+          socketUrl: `${socketUrl}/ai-stream`,
+          sessionId,
+        });
         setConnected(false);
         setError(`连接失败: ${err.message}`);
       });

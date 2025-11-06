@@ -280,6 +280,97 @@ AI服务 (WSL/Linux: localhost:5678)
 后端API (apps/api:4001) → PostgreSQL数据库
 ```
 
+### ⚠️ 重要：实时数据流 vs 聚合数据
+
+系统实现了**两套独立的数据流架构**，针对不同的使用场景：
+
+#### 1. 实时数据流（考试进行中）
+
+**用途**：教师端 `/ai-live` 页面的实时监控
+
+**数据流**：
+```
+AI服务 (RTSP消费器)
+    ↓ 每帧分析 (15 FPS)
+Redis Pub/Sub
+    ↓ Channel: ai:session:{sessionId}
+后端WebSocket网关 (/ai-stream)
+    ↓ Socket.IO转发
+前端 useRealtimeAIStream Hook
+    ↓ 实时更新UI
+/ai-live 页面（饼图、趋势图、心率）
+```
+
+**关键配置**：
+- AI服务必须配置 `REDIS_*` 环境变量
+- Redis服务必须运行（`pnpm docker:up` 启动）
+- `REDIS_REALTIME_ENABLED=true` 开启推送
+
+**数据特点**：
+- 更新频率：15 FPS
+- 数据类型：`video_emotion`, `audio_emotion`, `heart_rate`
+- 不持久化（仅内存传输）
+- WebSocket实时推送
+
+**相关文件**：
+- AI推送：`services/emotion-ai/services/redis_publisher.py`
+- 后端网关：`apps/api/src/ai/ai-stream.gateway.ts`
+- 前端Hook：`apps/web/src/app/ai-live/hooks/useRealtimeAIStream.ts`
+
+#### 2. 聚合数据（考试结束后）
+
+**用途**：教师端 `/dashboard/results/:resultId` 详情页的历史报告
+
+**数据流**：
+```
+AI服务分析过程
+    ↓ 每秒采样写入
+Checkpoint JSON文件
+    ↓ 考试结束时
+AI服务计算统计指标
+    ↓ HTTP API调用
+POST /api/ai/aggregates
+    ↓ 写入数据库
+AiAnalysisAggregate表
+    ↓ 教师查询
+GET /api/ai/aggregates/result/:resultId
+```
+
+**数据特点**：
+- 生成时机：考试提交后2秒内
+- 数据类型：平均值、标准差、分布等统计指标
+- 永久存储（PostgreSQL）
+- 一次性生成，不实时更新
+
+**相关文件**：
+- 文件写入：`services/emotion-ai/services/checkpoint_file_writer.py`
+- 聚合计算：AI服务 `_generate_aggregates()` 函数
+- 后端API：`apps/api/src/ai/ai.service.ts` 的 `saveAggregate()`
+
+#### 3. 常见错误与解决方案
+
+❌ **错误用法**：在考试进行中调用 `GET /api/ai/aggregates/result/:resultId`
+- **结果**：返回404 "AI aggregate not found"
+- **原因**：Aggregate只在考试结束后才生成
+- **正确做法**：使用WebSocket实时数据流
+
+✅ **正确用法**：
+- **考试进行中**：使用 `useRealtimeAIStream(sessionId)` 获取实时数据
+- **考试结束后**：使用 `aiApi.getAggregateByResultId(resultId)` 获取聚合报告
+
+#### 4. 故障排查
+
+**实时数据不更新**：
+1. 检查Redis服务是否运行：`docker ps | grep redis`
+2. 检查AI服务配置：`REDIS_REALTIME_ENABLED=true`
+3. 检查AI服务日志：`redis_publisher_connected` 和 `analysis_result_published`
+4. 检查浏览器Console：是否收到 `ai-data` 事件
+
+**Aggregate返回404**：
+1. 确认考试是否已结束（`exam_results.is_completed = true`）
+2. 检查AI服务是否生成聚合数据（查看日志）
+3. 查询数据库：`SELECT * FROM ai_analysis_aggregates WHERE exam_result_id = '...'`
+
 ### 关键组件说明
 
 #### 1. MediaMTX媒体服务器
@@ -779,5 +870,132 @@ export function transformPaperFromApi(apiData: PaperApiData): Paper {
 
 ---
 
-**最后更新**：2025-10-20
-**文档版本**：v2.0.1 (简化Monorepo结构 + AI服务实现中)
+## 🐛 重要Bug修复记录
+
+### Bug #1: AI Session未创建导致数据流断裂 (2025-11-06)
+
+#### 问题表现
+- ✅ Checkpoint文件正常生成（AI服务收到视频流）
+- ❌ 数据库ai_sessions表为空
+- ❌ GET /api/ai/aggregates/result/{resultId} 返回404
+- ❌ AI大屏页面显示"等待AI分析"
+- ❌ 后端日志显示：`RTSP consumer not found for session_id`
+
+#### 根本原因
+**文件**: `apps/web/src/hooks/useAIConnection.ts`
+
+1. **useMemo依赖问题（Line 463-476）**
+   ```typescript
+   // ❌ 错误：依赖数组包含函数引用
+   return useMemo(
+     () => ({ aiAvailable, aiConfigLoading, sessionId, initAISession, disconnect }),
+     [aiAvailable, aiConfigLoading, sessionId, initAISession, disconnect]
+     // ☝️ initAISession和disconnect是useCallback函数，引用可能变化
+   );
+   ```
+
+   **影响**:
+   - `useMemo`频繁返回新对象
+   - Session页面的`useEffect`重复触发
+   - React Strict Mode双重执行 + cleanup干扰
+   - `POST /api/ai/sessions` 永远无法执行到
+
+2. **缺少防重入守卫**
+   - 没有防止并发初始化的机制
+   - React Strict Mode会导致useEffect执行两次
+   - 第二次执行时可能清空了第一次的状态
+
+#### 修复方案
+
+**修复1: 稳定化useMemo返回值（Line 475）**
+```typescript
+// ✅ 修复后：移除函数依赖
+return useMemo(
+  () => ({ aiAvailable, aiConfigLoading, sessionId, initAISession, disconnect }),
+  [aiAvailable, aiConfigLoading, sessionId]
+  // ✅ 只依赖基础值，函数引用保持稳定
+);
+```
+
+**修复2: 添加执行守卫（Line 89, 139-151, 373-376）**
+```typescript
+// 新增ref
+const isInitializingRef = useRef(false);
+
+// 函数开头守卫
+if (isInitializingRef.current) {
+  console.log('[useAIConnection] ⚠️ 已在初始化中，跳过重复调用');
+  return null;
+}
+isInitializingRef.current = true;
+
+try {
+  // ... 原有逻辑 ...
+} finally {
+  isInitializingRef.current = false;
+}
+```
+
+#### 技术要点
+
+1. **React Hooks依赖规则**
+   - `useMemo`的依赖数组应该只包含**基础值**（primitive values）
+   - 函数引用（`useCallback`返回值）不应作为`useMemo`的依赖
+   - 函数稳定性由`useCallback`自身保证
+
+2. **React 18+ Strict Mode**
+   - Dev模式下`useEffect`执行两次（mount → cleanup → mount）
+   - 需要使用ref防止重复初始化
+   - cleanup函数必须正确清理资源
+
+3. **数据流完整性验证**
+   ```
+   必须的API调用顺序：
+   1. POST /api/webrtc/start ✅
+   2. WHIP推流建立 ✅
+   3. POST /api/ai/sessions ⚠️ (本次修复的关键)
+   4. POST AI服务 /api/rtsp/start ⚠️
+   5. AI分析开始
+   6. POST /api/ai/aggregates (聚合数据保存)
+   ```
+
+#### 验证清单
+
+修复后必须验证以下几点：
+
+- [ ] 浏览器Console看到`[useAIConnection] 初始化AI会话`（仅一次）
+- [ ] 后端日志出现`POST /api/ai/sessions`
+- [ ] 数据库ai_sessions表有新记录
+- [ ] AI服务日志显示RTSP consumer启动
+- [ ] 考试结束后ai_analysis_aggregates表有记录
+- [ ] `GET /api/ai/aggregates/result/{resultId}` 返回200
+- [ ] AI大屏页面正常显示分析数据
+- [ ] 没有404 "RTSP consumer not found"错误
+
+#### 相关文件
+- `apps/web/src/hooks/useAIConnection.ts` - 主要修复文件
+- `apps/web/src/app/exam/[examId]/session/[resultId]/page.tsx` - 调用initAISession
+- `apps/api/src/ai/ai.service.ts` - 后端session创建服务
+- `services/emotion-ai/services/rtsp_consumer.py` - RTSP消费器
+
+#### 经验教训
+
+1. **Hook依赖管理至关重要**
+   - 仔细检查`useMemo`/`useCallback`的依赖数组
+   - 理解React的重新渲染机制
+   - 避免循环依赖
+
+2. **异步流程需要防重入**
+   - 使用ref守卫防止并发执行
+   - 考虑Strict Mode的影响
+   - 正确清理资源
+
+3. **完整的数据流调试**
+   - 逐步验证每个环节
+   - 检查数据库状态
+   - 对比checkpoint文件和数据库记录
+
+---
+
+**最后更新**：2025-11-06
+**文档版本**：v2.1.0 (AI Session创建Bug修复)

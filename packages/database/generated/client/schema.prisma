@@ -291,7 +291,9 @@ model Answer {
 // ================================================================================
 
 model AiSession {
-  id           String      @id @default(cuid())
+  // ✅ 修复：允许前端传入自定义ID（resultId），而非自动生成UUID
+  // 这样可以统一使用session_id，避免prisma_session_id的复杂性
+  id           String      @id
   sessionId    String      @unique @db.VarChar(100)
   examResultId String?     @unique @db.VarChar(50)
   examResult   ExamResult? @relation("AiSessionToExamResult", fields: [examResultId], references: [id])
@@ -338,7 +340,7 @@ enum AiSessionStatus {
 model AiAnalysisAggregate {
   id           String     @id @default(cuid())
   sessionId    String     @unique
-  session      AiSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session      AiSession  @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
   examResultId String     @unique
   examResult   ExamResult @relation("AiAnalysisToExamResult", fields: [examResultId], references: [id], onDelete: Cascade)
 

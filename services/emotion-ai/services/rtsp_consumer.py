@@ -86,7 +86,7 @@ class RTSPConsumer:
 
         # 文件存储信息（新架构）
         self.checkpoint_file_path: Optional[str] = None  # 相对路径
-        self.prisma_session_id: Optional[str] = None      # Prisma数据库会话ID
+        # ✅ 修复：移除prisma_session_id，统一使用session_id（业务ID）
 
         # ✅ 保存主事件循环引用（用于线程安全的协程调度）
         try:
@@ -103,15 +103,7 @@ class RTSPConsumer:
             rtsp_url=self.rtsp_url,
         )
 
-    def set_session_info(self, prisma_session_id: str):
-        """
-        设置Prisma数据库会话ID（在创建session后调用）
-
-        Args:
-            prisma_session_id: Prisma数据库中的会话ID
-        """
-        self.prisma_session_id = prisma_session_id
-        logger.info("session_info_set", session_id=self.session_id, prisma_id=prisma_session_id)
+    # ✅ 修复：移除set_session_info()方法，不再需要单独设置prisma_session_id
 
     async def start(self):
         """启动RTSP流消费"""
@@ -214,7 +206,8 @@ class RTSPConsumer:
         await self._flush_checkpoints()
 
         # 更新数据库中的文件信息（新架构）
-        if self.prisma_session_id and self.checkpoint_file_path:
+        # ✅ 修复：使用session_id判断
+        if self.session_id and self.checkpoint_file_path:
             try:
                 from services.checkpoint_file_writer import get_checkpoint_file_writer
                 file_writer = get_checkpoint_file_writer()
@@ -223,7 +216,7 @@ class RTSPConsumer:
                 if file_info:
                     async with self.data_writer as writer:
                         await writer.update_session_file_info(
-                            prisma_session_id=self.prisma_session_id,
+                            session_id=self.session_id,  # ✅ 修复：使用session_id
                             file_path=file_info["relative_path"],
                             checkpoint_count=file_info["checkpoint_count"],
                             file_size=file_info["file_size"]
@@ -244,11 +237,12 @@ class RTSPConsumer:
         # ✅ 计算并保存聚合数据（新架构：从JSON文件计算）
         logger.info(
             "starting_aggregate_generation",
-            session_id=self.session_id,
-            prisma_session_id=self.prisma_session_id
+            session_id=self.session_id
+            # ✅ 修复：不再需要prisma_session_id
         )
 
-        if self.prisma_session_id:
+        # ✅ 修复：判断条件改为session_id（始终有值）
+        if self.session_id:
             try:
                 from services.checkpoint_file_writer import get_checkpoint_file_writer
                 from services.aggregator import get_aggregator
@@ -256,13 +250,23 @@ class RTSPConsumer:
                 file_writer = get_checkpoint_file_writer()
                 aggregator = get_aggregator()
 
-                logger.debug(
-                    "reading_checkpoint_data_for_aggregation",
-                    session_id=self.session_id
+                # ⭐ 增强日志：checkpoint读取前
+                logger.info(
+                    "step_1_reading_checkpoint_file",
+                    session_id=self.session_id,
+                    exam_result_id=self.exam_result_id
                 )
 
                 # 读取检查点数据
                 checkpoint_data = file_writer.read_checkpoint_data(self.session_id)
+
+                # ⭐ 增强日志：checkpoint读取后
+                logger.info(
+                    "step_1_checkpoint_read_complete",
+                    session_id=self.session_id,
+                    data_is_none=(checkpoint_data is None),
+                    data_keys=list(checkpoint_data.keys()) if checkpoint_data else []
+                )
 
                 # ✅ 增强日志：检查点数据结构详情
                 if checkpoint_data:
@@ -289,59 +293,109 @@ class RTSPConsumer:
                         message="无法读取检查点文件或文件为空"
                     )
 
-                if checkpoint_data and checkpoint_data.get("data_points"):
-                    logger.info(
-                        "calculating_aggregate",
-                        session_id=self.session_id,
-                        data_points=len(checkpoint_data["data_points"])
-                    )
+                if checkpoint_data:
+                    # ✅ 检查新架构数据字段
+                    video_emotions = checkpoint_data.get("video_emotions", [])
+                    audio_emotions = checkpoint_data.get("audio_emotions", [])
+                    heart_rate_data = checkpoint_data.get("heart_rate_data", [])
 
-                    # 计算聚合指标
-                    aggregate = aggregator.calculate_aggregate(checkpoint_data)
+                    has_valid_data = (len(video_emotions) > 0 or
+                                      len(audio_emotions) > 0 or
+                                      len(heart_rate_data) > 0)
 
-                    if aggregate:
+                    if has_valid_data:
+                        # ⭐ 增强日志：开始计算aggregate
                         logger.info(
-                            "aggregate_calculated_successfully",
+                            "step_2_calculating_aggregate",
                             session_id=self.session_id,
-                            avg_valence=aggregate.get("avgValence"),
-                            avg_arousal=aggregate.get("avgArousal"),
-                            avg_hr=aggregate.get("avgHeartRate"),
-                            dominant_emotion=aggregate.get("dominantEmotion"),
-                            attention_score=aggregate.get("attentionScore")
+                            video_emotions=len(video_emotions),
+                            audio_emotions=len(audio_emotions),
+                            heart_rate_data=len(heart_rate_data)
                         )
 
-                        # 保存到后端API
-                        try:
-                            async with self.data_writer as writer:
-                                await writer.save_aggregate(
+                        # 计算聚合指标
+                        aggregate = aggregator.calculate_aggregate(checkpoint_data)
+
+                        # ⭐ 增强日志：计算完成，检查返回值
+                        logger.info(
+                            "step_2_aggregate_calculation_complete",
+                            session_id=self.session_id,
+                            aggregate_is_none=(aggregate is None),
+                            aggregate_keys=list(aggregate.keys()) if aggregate else [],
+                            has_session_id=aggregate.get("session_id") if aggregate else None,
+                            has_exam_result_id=aggregate.get("exam_result_id") if aggregate else None
+                        )
+
+                        if aggregate:
+                            logger.info(
+                                "aggregate_calculated_successfully",
+                                session_id=self.session_id,
+                                avg_valence=aggregate.get("avgValence"),
+                                avg_arousal=aggregate.get("avgArousal"),
+                                avg_hr=aggregate.get("avgHeartRate"),
+                                dominant_emotion=aggregate.get("dominantEmotion"),
+                                attention_score=aggregate.get("attentionScore")
+                            )
+
+                            # 保存到后端API
+                            try:
+                                # ⭐ 增强日志：开始保存
+                                logger.info(
+                                    "step_3_saving_aggregate_to_backend",
                                     session_id=self.session_id,
                                     exam_result_id=self.exam_result_id,
-                                    **aggregate
+                                    backend_url=self.data_writer.backend_url,
+                                    aggregate_fields=list(aggregate.keys())
                                 )
-                            logger.info(
-                                "aggregate_saved_to_backend",
+
+                                async with self.data_writer as writer:
+                                    # ⚠️ 修复：aggregate中已包含session_id和exam_result_id
+                                    # 需要移除这两个字段，避免参数冲突
+                                    aggregate_without_ids = {k: v for k, v in aggregate.items()
+                                                            if k not in ['session_id', 'exam_result_id']}
+
+                                    result = await writer.save_aggregate(
+                                        session_id=self.session_id,
+                                        exam_result_id=self.exam_result_id,
+                                        **aggregate_without_ids
+                                    )
+
+                                # ⭐ 增强日志：保存成功
+                                logger.info(
+                                    "step_3_aggregate_saved_successfully",
+                                    session_id=self.session_id,
+                                    result_id=result.get("id") if result else None,
+                                    message="✅ 聚合数据已成功保存到后端API"
+                                )
+                            except Exception as save_error:
+                                # ⭐ 增强日志：保存失败
+                                logger.error(
+                                    "step_3_aggregate_save_failed",
+                                    session_id=self.session_id,
+                                    error=str(save_error),
+                                    error_type=type(save_error).__name__,
+                                    error_traceback=str(save_error.__traceback__) if hasattr(save_error, '__traceback__') else None
+                                )
+                        else:
+                            logger.warn(
+                                "aggregate_calculation_returned_none",
                                 session_id=self.session_id,
-                                message="聚合数据已成功保存到后端API"
-                            )
-                        except Exception as save_error:
-                            logger.error(
-                                "aggregate_save_failed",
-                                session_id=self.session_id,
-                                error=str(save_error),
-                                error_type=type(save_error).__name__
+                                message="聚合计算返回None，可能数据不足或计算失败"
                             )
                     else:
                         logger.warn(
-                            "aggregate_calculation_returned_none",
+                            "no_valid_data_for_aggregation",
                             session_id=self.session_id,
-                            message="聚合计算返回None，可能数据不足或计算失败"
+                            video_emotions=len(video_emotions),
+                            audio_emotions=len(audio_emotions),
+                            heart_rate_data=len(heart_rate_data),
+                            message="检查点数据中没有有效分析数据，无法计算聚合指标"
                         )
                 else:
-                    logger.warn(
-                        "no_data_points_for_aggregation",
+                    logger.error(
+                        "checkpoint_data_is_none_for_aggregation",
                         session_id=self.session_id,
-                        has_checkpoint_data=checkpoint_data is not None,
-                        message="检查点数据中没有data_points，无法计算聚合指标"
+                        message="检查点数据为None，无法计算聚合指标"
                     )
             except Exception as e:
                 logger.error(
@@ -349,16 +403,11 @@ class RTSPConsumer:
                     session_id=self.session_id,
                     error=str(e),
                     error_type=type(e).__name__,
-                    prisma_session_id=self.prisma_session_id,
+                    # ✅ 修复：移除prisma_session_id引用
                     exam_result_id=self.exam_result_id
                 )
                 # raise
-        else:
-            logger.error(
-                "❌ cannot_generate_aggregate_no_prisma_session_id",
-                session_id=self.session_id,
-                message="prisma_session_id未设置，无法保存聚合数据"
-            )
+        # ✅ 修复：删除else分支，因为session_id始终有值
 
         logger.info(
             "rtsp_consumer_stopped",

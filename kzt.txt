@@ -1,0 +1,41 @@
+🚨 重要提醒：这是一个REFACTOR重构项目
+
+# 核心信息
+- **工作目录**：/home/aaron/心理测试平台/refactor （NOT /home/aaron/心理测试平台）
+- **所有开发都在 refactor/ 目录下进行**
+- **原项目在父目录，但我们不使用它**
+
+# 快速定位
+```bash
+cd /home/aaron/心理测试平台/refactor
+```
+
+# 架构说明
+- Monorepo架构（pnpm workspace + Turbo）
+- apps/web: Next.js 15前端 (4000端口)
+- apps/api: NestJS后端 (4001端口)
+- services/emotion-ai: Python AI服务 (5678端口)
+- packages/database: Prisma数据库
+
+# 最新修复 (2025-11-06)
+✅ 修复了AI Session未创建的严重bug
+   - 文件：apps/web/src/hooks/useAIConnection.ts
+   - 问题：useMemo依赖包含函数引用导致重复执行
+   - 修复：移除函数依赖 + 添加防重入守卫
+
+# 完整文档
+请阅读：/home/aaron/心理测试平台/refactor/CLAUDE.md
+包含完整的架构说明、开发规范、AI集成架构、Bug修复记录
+
+# 启动服务
+```bash
+cd /home/aaron/心理测试平台/refactor
+pnpm dev:core  # 启动web + api
+```
+
+AI服务单独启动：
+```bash
+cd /home/aaron/心理测试平台/refactor/services/emotion-ai
+conda activate emotion
+python main.py
+```

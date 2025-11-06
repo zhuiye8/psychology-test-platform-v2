@@ -1,0 +1,343 @@
+心理测试平台 2.0 重构版 - 完整目录树
+======================================
+
+refactor/
+├── apps/
+│   ├── web/                                    # 教师端 + 学生端一体化应用 (5,644行代码)
+│   │   ├── src/
+│   │   │   ├── app/                           # Next.js 15 App Router
+│   │   │   │   ├── layout.tsx                 # 根布局
+│   │   │   │   ├── page.tsx                   # 首页
+│   │   │   │   ├── login/                     # 教师登录
+│   │   │   │   ├── dashboard/                 # 教师管理后台
+│   │   │   │   │   ├── page.tsx              # Dashboard主页
+│   │   │   │   │   ├── papers/               # 试卷管理
+│   │   │   │   │   │   ├── page.tsx
+│   │   │   │   │   │   ├── [paperId]/
+│   │   │   │   │   │   └── create/
+│   │   │   │   │   ├── questions/            # 题目管理
+│   │   │   │   │   │   ├── page.tsx
+│   │   │   │   │   │   └── editor/
+│   │   │   │   │   ├── exams/                # 考试管理（5状态看板）
+│   │   │   │   │   │   ├── page.tsx
+│   │   │   │   │   │   └── create/
+│   │   │   │   │   ├── results/              # 结果管理
+│   │   │   │   │   │   ├── page.tsx
+│   │   │   │   │   │   └── [resultId]/
+│   │   │   │   │   ├── analytics/            # 数据分析
+│   │   │   │   │   ├── ai-monitor/           # AI实时监控
+│   │   │   │   │   ├── ai-models/            # AI模型管理
+│   │   │   │   │   ├── settings/             # 设置
+│   │   │   │   │   └── teachers/             # 教师管理
+│   │   │   │   ├── exam/                     # 学生端考试流程
+│   │   │   │   │   └── [examId]/
+│   │   │   │   │       ├── join/             # 加入考试
+│   │   │   │   │       ├── device-check/     # 设备检查
+│   │   │   │   │       ├── session/
+│   │   │   │   │       │   └── [resultId]/   # 答题界面
+│   │   │   │   │       └── result/
+│   │   │   │   │           └── [resultId]/   # 成绩查看
+│   │   │   │   └── ai-live/                  # AI直播（备用）
+│   │   │   │
+│   │   │   ├── components/                   # React组件
+│   │   │   │   ├── ui-kit/                   # 通用UI组件库
+│   │   │   │   │   ├── PageHeader.tsx
+│   │   │   │   │   ├── DataTable.tsx
+│   │   │   │   │   ├── FormModal.tsx
+│   │   │   │   │   ├── StatusBadge.tsx
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── papers/                   # 试卷相关
+│   │   │   │   ├── questions/                # 题目相关
+│   │   │   │   │   ├── QuestionTypeSelector.tsx
+│   │   │   │   │   ├── OptionEditor.tsx
+│   │   │   │   │   ├── QuestionEditor.tsx
+│   │   │   │   │   ├── ConditionBuilder.tsx  # 条件逻辑编辑器
+│   │   │   │   │   └── ...
+│   │   │   │   ├── exams/                    # 考试相关
+│   │   │   │   │   ├── ExamStatusBadge.tsx
+│   │   │   │   │   ├── ExamCard.tsx
+│   │   │   │   │   ├── KanbanLayout.tsx      # 看板布局
+│   │   │   │   │   └── ...
+│   │   │   │   ├── results/                  # 结果相关
+│   │   │   │   │   ├── AiAnalysisTab.tsx
+│   │   │   │   │   ├── AnomalyTimeline.tsx
+│   │   │   │   │   ├── AiStatusBadge.tsx
+│   │   │   │   │   └── ...
+│   │   │   │   ├── exam/                     # 学生答题
+│   │   │   │   │   ├── AnswerInput.tsx
+│   │   │   │   │   ├── QuestionNavigator.tsx
+│   │   │   │   │   ├── TimerDisplay.tsx
+│   │   │   │   │   └── device/
+│   │   │   │   ├── common/
+│   │   │   │   ├── ai-live/
+│   │   │   │   └── ...
+│   │   │   │
+│   │   │   ├── hooks/                        # React Hooks
+│   │   │   │   ├── useAuth.ts
+│   │   │   │   ├── useAIConnection.ts        # AI会话管理（Bug修复）
+│   │   │   │   ├── useDeviceCheck.ts
+│   │   │   │   ├── useAnswerTimestamps.ts
+│   │   │   │   └── ...
+│   │   │   │
+│   │   │   ├── services/                     # API客户端
+│   │   │   │   ├── papers.ts
+│   │   │   │   ├── questions.ts
+│   │   │   │   ├── exams.ts
+│   │   │   │   ├── results.ts
+│   │   │   │   ├── ai.ts
+│   │   │   │   ├── webrtc.ts
+│   │   │   │   ├── webrtcPublisher.ts        # WHIP推流
+│   │   │   │   ├── webrtcSubscriber.ts
+│   │   │   │   └── ...
+│   │   │   │
+│   │   │   ├── types/                        # TypeScript类型
+│   │   │   │   ├── api.ts
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── condition.ts              # 条件逻辑类型
+│   │   │   │   ├── device.ts
+│   │   │   │   ├── webrtc.ts
+│   │   │   │   └── ...
+│   │   │   │
+│   │   │   ├── contexts/                     # React Context
+│   │   │   │   └── MediaStreamContext.tsx    # 全局媒体流管理
+│   │   │   │
+│   │   │   ├── providers/                    # 应用提供者
+│   │   │   ├── utils/                        # 工具函数
+│   │   │   │   └── transformers/            # 数据转换（snake ↔ camel）
+│   │   │   ├── styles/                       # 全局样式
+│   │   │   └── ...
+│   │   │
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── next.config.ts
+│   │   └── ...
+│   │
+│   └── api/                                    # 后端API服务 (5,353行代码)
+│       ├── src/
+│       │   ├── main.ts                       # 应用入口
+│       │   ├── app.module.ts                 # 根模块
+│       │   │
+│       │   ├── auth/                         # 认证模块
+│       │   │   ├── auth.controller.ts
+│       │   │   ├── auth.service.ts
+│       │   │   ├── jwt.strategy.ts
+│       │   │   ├── jwt.guard.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── teachers/                     # 教师管理
+│       │   ├── users/                        # 用户管理
+│       │   │
+│       │   ├── papers/                       # 试卷模块
+│       │   │   ├── papers.controller.ts
+│       │   │   ├── papers.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── questions/                    # 题目模块
+│       │   │   ├── questions.controller.ts
+│       │   │   ├── questions.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── exams/                        # 考试模块（5状态）
+│       │   │   ├── exams.controller.ts
+│       │   │   ├── exams.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── results/                      # 结果模块
+│       │   │   ├── results.controller.ts
+│       │   │   ├── results.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── ai/                           # AI会话管理
+│       │   │   ├── ai.controller.ts
+│       │   │   ├── ai.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── ai-analysis/                  # AI分析数据
+│       │   │   ├── ai-analysis.controller.ts
+│       │   │   ├── ai-analysis.service.ts
+│       │   │   ├── services/
+│       │   │   └── types/
+│       │   │
+│       │   ├── webrtc/                       # WebRTC代理
+│       │   │   ├── webrtc.controller.ts
+│       │   │   ├── webrtc.service.ts
+│       │   │   └── dto/
+│       │   │
+│       │   ├── health/                       # 健康检查
+│       │   ├── system/                       # 系统管理
+│       │   ├── common/                       # 通用模块
+│       │   │   ├── config/
+│       │   │   ├── filters/
+│       │   │   └── interceptors/
+│       │   ├── database/                     # 数据库配置
+│       │   └── ...
+│       │
+│       ├── package.json
+│       ├── tsconfig.json
+│       └── ...
+│
+├── packages/
+│   └── database/                              # 共享数据库配置
+│       ├── prisma/
+│       │   └── schema.prisma                 # 5 Domain Schema
+│       │       ├── Domain 1: User Management
+│       │       ├── Domain 2: Content (Papers & Questions)
+│       │       ├── Domain 3: Exams
+│       │       ├── Domain 4: Results
+│       │       └── Domain 5: AI Analysis
+│       ├── generated/
+│       │   └── client/                       # 自动生成Prisma Client
+│       ├── src/
+│       ├── package.json
+│       └── seed.ts                           # 数据库初始化脚本
+│
+├── services/
+│   └── emotion-ai/                            # AI分析微服务 (5,797行代码)
+│       ├── main.py                           # FastAPI应用入口
+│       ├── config.py                         # 配置管理
+│       ├── requirements.txt                  # Python依赖
+│       │
+│       ├── api/                              # 路由层
+│       │   ├── health.py                     # 健康检查
+│       │   ├── rtsp.py                       # RTSP消费API
+│       │   ├── models.py                     # 模型查询API
+│       │   └── tts.py                        # 文本转语音API
+│       │
+│       ├── models/                           # AI模型层
+│       │   ├── deepface_analyzer.py          # 情绪识别（7种）
+│       │   ├── emotion2vec_analyzer.py       # 音频情绪分析
+│       │   ├── ppg_detector.py               # 心率检测
+│       │   ├── video_processor.py            # 视频处理
+│       │   └── voxcpm_tts.py                 # TTS模型
+│       │
+│       ├── services/                         # 业务逻辑层
+│       │   ├── rtsp_manager.py               # RTSP管理器（单例）
+│       │   ├── rtsp_consumer.py              # RTSP消费者
+│       │   ├── checkpoint_file_writer.py     # 检查点文件写入
+│       │   ├── data_writer.py                # 数据写入后端API
+│       │   ├── aggregator.py                 # 数据聚合
+│       │   ├── audio_extractor.py            # 音频提取
+│       │   ├── audio_encoder.py              # 音频编码
+│       │   ├── redis_publisher.py            # Redis实时推送
+│       │   └── ...
+│       │
+│       ├── utils/                            # 工具函数
+│       │   ├── logger.py                     # 结构化日志
+│       │   └── ...
+│       │
+│       ├── docs/                             # 文档
+│       └── .env.example                      # 环境变量示例
+│
+├── docs/                                      # 项目文档
+│   ├── PROJECT_STRUCTURE_OVERVIEW.md         # 项目结构详解（本报告）
+│   ├── QUICK_REFERENCE.md                    # 快速参考指南
+│   ├── DIRECTORY_TREE.txt                    # 目录树（本文件）
+│   ├── ai_data_flow_analysis.md              # AI数据流分析
+│   ├── ai_fix_test_guide.md                  # AI修复指南
+│   ├── setup-guide.md                        # 设置指南
+│   ├── conditional-logic-testing-guide.md    # 条件逻辑测试指南
+│   └── ...
+│
+├── scripts/                                   # 部署和初始化脚本
+│   └── ...
+│
+├── data/                                      # 运行时数据目录
+│   ├── ai_analysis/                          # AI分析输出
+│   ├── exports/                              # Excel导出
+│   ├── logs/                                 # 日志文件
+│   ├── temp/                                 # 临时文件
+│   └── uploads/                              # 用户上传
+│
+├── database/                                  # 数据库初始化脚本
+│   └── init/
+│
+├── .env                                       # 环境配置
+├── .env.example                               # 环境变量示例
+├── docker-compose.yml                         # 容器编排（PostgreSQL + Redis）
+├── package.json                               # Monorepo根配置
+├── pnpm-workspace.yaml                        # pnpm workspace配置
+├── pnpm-lock.yaml                             # 依赖锁定文件
+├── turbo.json                                 # Turbo构建配置
+├── tsconfig.json                              # TypeScript根配置
+├── .eslintrc.json                             # ESLint配置
+├── .prettierrc                                # Prettier配置
+├── CLAUDE.md                                  # Claude AI开发指南（重要！）
+├── README.md                                  # 项目说明
+├── CONTRIBUTING.md                            # 贡献指南
+├── LICENSE                                    # MIT许可证
+├── .gitignore                                 # Git忽略文件
+└── ...
+
+===============================================
+
+关键数据库表
+============
+
+Teachers (教师)
+Papers (试卷模板)
+Questions (题目 - 4种题型)
+Exams (考试实例 - 5状态)
+ExamResults (学生答题记录)
+Answers (单题答案)
+Students (学生)
+AISession (AI分析会话)
+AIAggregate (AI聚合数据：情绪、注意力、心率)
+AIAnomaly (异常事件)
+AICheckpoint (原始检查点数据)
+
+===============================================
+
+核心开发命令
+============
+
+# 项目启动
+pnpm dev:core           # 启动API + Web
+pnpm docker:up          # 启动PostgreSQL + Redis
+pnpm db:seed            # 初始化数据库
+
+# 数据库操作
+pnpm db:generate        # 生成Prisma Client
+pnpm db:push            # 推送Schema
+pnpm db:migrate         # 数据库迁移
+pnpm db:studio          # Prisma Studio
+
+# 单应用启动
+pnpm web:dev            # 教师端 + 学生端 (4000)
+pnpm api:dev            # 后端API (4001)
+
+# AI服务（Python）
+cd services/emotion-ai
+python main.py          # AI服务 (5678)
+
+===============================================
+
+端口映射
+========
+
+4000    Web应用 (教师端 + 学生端)
+4001    API服务 (后端)
+5678    AI服务 (Python FastAPI)
+5432    PostgreSQL (数据库)
+6379    Redis (缓存)
+8889    MediaMTX (WebRTC/WHIP信令)
+8189    MediaMTX (WebRTC/UDP媒体)
+8554    MediaMTX (RTSP流输出)
+
+===============================================
+
+快速查找
+========
+
+教师端:       apps/web/src/app/dashboard/
+学生端:       apps/web/src/app/exam/
+后端API:      apps/api/src/
+AI分析:       services/emotion-ai/
+数据库:       packages/database/prisma/
+通用组件:     apps/web/src/components/ui-kit/
+Hooks:        apps/web/src/hooks/
+API客户端:    apps/web/src/services/
+类型定义:     apps/web/src/types/
+
+===============================================
+
+生成时间: 2025-11-06
