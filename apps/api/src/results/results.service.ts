@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, StreamableFile } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, StreamableFile, Logger } from '@nestjs/common';
 import { PassThrough } from 'stream';
 import { DatabaseService } from '../database/database.service';
 import { StartExamDto, SubmitAnswerDto, SubmitExamDto, QueryResultsDto } from './dto';
@@ -6,6 +6,8 @@ import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ResultsService {
+  private readonly logger = new Logger(ResultsService.name);
+
   constructor(private readonly db: DatabaseService) {}
 
   // ===== Student Endpoints (Public) =====
