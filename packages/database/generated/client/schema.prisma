@@ -1,0 +1,525 @@
+// Psychology Testing Platform - Database Schema
+// Domain-Driven Design with 5 core domains
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================================================================
+// DOMAIN 1: USER MANAGEMENT
+// ================================================================================
+
+model Teacher {
+  id       String @id @default(cuid())
+  username String @unique @db.VarChar(50)
+  email    String @unique @db.VarChar(100)
+  name     String @db.VarChar(100)
+  password String @db.VarChar(255)
+
+  // Profile
+  avatar      String? @db.VarChar(500)
+  phoneNumber String? @db.VarChar(20)
+  department  String? @db.VarChar(100)
+  title       String? @db.VarChar(100)
+
+  // System fields
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete
+
+  // Relations
+  papers Paper[]
+  exams  Exam[]
+
+  @@index([username])
+  @@index([email])
+  @@index([deletedAt])
+  @@map("teachers")
+}
+
+model Student {
+  id            String  @id @default(cuid())
+  participantId String  @unique @db.VarChar(50) // Student ID for exam
+  name          String  @db.VarChar(100)
+  email         String? @db.VarChar(100)
+  phoneNumber   String? @db.VarChar(20)
+
+  // Additional info
+  grade     String? @db.VarChar(50)
+  class     String? @db.VarChar(50)
+  studentId String? @db.VarChar(50) // School student ID
+
+  // System fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  examResults ExamResult[]
+
+  @@index([participantId])
+  @@index([studentId])
+  @@index([deletedAt])
+  @@map("students")
+}
+
+// ================================================================================
+// DOMAIN 2: CONTENT MANAGEMENT (Papers & Questions)
+// ================================================================================
+
+model Paper {
+  id          String  @id @default(cuid())
+  title       String  @db.VarChar(200)
+  description String? @db.Text
+  category    String? @db.VarChar(100)
+
+  // Configuration
+  timeLimit              Int? // Minutes
+  allowRetake            Boolean @default(false)
+  showResultsImmediately Boolean @default(true)
+  randomizeQuestions     Boolean @default(false)
+
+  // System fields
+  teacherId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  questions Question[]
+  exams     Exam[]
+
+  @@index([teacherId])
+  @@index([category])
+  @@index([deletedAt])
+  @@map("papers")
+}
+
+model Question {
+  id      String @id @default(cuid())
+  paperId String
+  paper   Paper  @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  // Content
+  title       String       @db.Text
+  type        QuestionType
+  description String?      @db.Text
+  explanation String?      @db.Text
+
+  // Configuration
+  order            Int
+  required         Boolean @default(true)
+  points           Int     @default(1)
+  displayCondition Json? // Conditional logic
+
+  // Options for choice questions
+  options Json? // Array of {id, text, isCorrect}
+
+  // System fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  answers Answer[]
+
+  @@index([paperId, order])
+  @@index([type])
+  @@index([deletedAt])
+  @@map("questions")
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+  ESSAY
+}
+
+// ================================================================================
+// DOMAIN 3: EXAM MANAGEMENT
+// ================================================================================
+
+model Exam {
+  id      String @id @default(cuid())
+  paperId String
+  paper   Paper  @relation(fields: [paperId], references: [id])
+
+  // Basic info
+  title       String  @db.VarChar(200)
+  description String? @db.Text
+
+  // Schedule
+  startTime DateTime
+  endTime   DateTime
+  timeLimit Int? // Minutes, overrides paper setting
+
+  // Access control
+  accessCode      String? @db.VarChar(20)
+  allowedStudents Json? // Array of participant IDs
+  maxAttempts     Int     @default(1)
+
+  // Configuration
+  requireCamera     Boolean @default(false)
+  requireMicrophone Boolean @default(false)
+  enableAIAnalysis  Boolean @default(false)
+
+  // Status management
+  status ExamStatus @default(DRAFT)
+
+  // System fields
+  teacherId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime? // Soft delete timestamp
+  scheduledDeletionAt DateTime? // Scheduled permanent deletion (deletedAt + 7 days)
+
+  // Relations
+  examResults ExamResult[]
+
+  @@index([teacherId])
+  @@index([status])
+  @@index([startTime, endTime])
+  @@index([accessCode])
+  @@index([deletedAt])
+  @@map("exams")
+}
+
+enum ExamStatus {
+  DRAFT
+  PUBLISHED
+  SUCCESS
+  ARCHIVED
+  DELETED
+}
+
+model ExamResult {
+  id     String @id @default(cuid())
+  examId String
+  exam   Exam   @relation(fields: [examId], references: [id])
+
+  // Student info
+  studentId       String?
+  student         Student? @relation(fields: [studentId], references: [id])
+  participantId   String   @db.VarChar(50) // Anonymous or known
+  participantName String   @db.VarChar(100)
+
+  // Session info
+  startedAt   DateTime
+  submittedAt DateTime?
+  timeSpent   Int? // Seconds
+  ipAddress   String?   @db.VarChar(45) // IPv6 support
+  userAgent   String?   @db.Text
+
+  // Results
+  totalScore  Float   @default(0)
+  maxScore    Float   @default(0)
+  percentage  Float   @default(0)
+  isCompleted Boolean @default(false)
+  isValid     Boolean @default(true) // For flagging suspicious results
+
+  // AI Analysis connection
+  aiSessionId String? @unique @db.VarChar(100)
+
+  // System fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  answers        Answer[]             @relation("AnswerToExamResult")
+  aiAnalysisData AiAnalysisAggregate? @relation("AiAnalysisToExamResult")
+  aiSession      AiSession?           @relation("AiSessionToExamResult")
+
+  @@index([examId])
+  @@index([participantId])
+  @@index([submittedAt])
+  @@index([aiSessionId])
+  @@index([deletedAt])
+  @@index([examId, participantId, isCompleted]) // Optimized query for active sessions and retakes
+  @@map("exam_results")
+}
+
+model Answer {
+  id           String     @id @default(cuid())
+  examResultId String
+  examResult   ExamResult @relation("AnswerToExamResult", fields: [examResultId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question   @relation(fields: [questionId], references: [id])
+
+  // Answer content
+  selectedOptions Json? // Array of option IDs for choice questions
+  textAnswer      String? @db.Text
+
+  // Scoring
+  isCorrect Boolean? // Null for subjective questions
+  points    Float    @default(0)
+
+  // ⭐ Answer timing fields (for AI analysis correlation)
+  questionDisplayedAt DateTime? // When question was first shown to student
+  firstInteractionAt  DateTime? // When student first clicked/typed
+  lastModifiedAt      DateTime? // When student last changed their answer
+  answeredAt          DateTime  @default(now()) // When answer was submitted/saved
+
+  // ⭐ Behavior metrics (for psychological analysis)
+  totalViewTime    Int? // Total time viewing question (milliseconds)
+  interactionCount Int    @default(0) // Number of interactions with question
+  hesitationScore  Float? // Calculated hesitation metric (0-1, higher = more hesitation)
+
+  @@unique([examResultId, questionId]) // One answer per question per result
+  @@index([examResultId])
+  @@index([questionId])
+  @@index([questionDisplayedAt]) // Optimize time-based AI data queries
+  @@map("answers")
+}
+
+// ================================================================================
+// DOMAIN 4: AI ANALYSIS & MONITORING
+// ================================================================================
+
+model AiSession {
+  id           String      @id @default(cuid())
+  sessionId    String      @unique @db.VarChar(100)
+  examResultId String?     @unique @db.VarChar(50)
+  examResult   ExamResult? @relation("AiSessionToExamResult", fields: [examResultId], references: [id])
+
+  // Status
+  status    AiSessionStatus @default(ACTIVE)
+  startTime DateTime        @default(now())
+  endTime   DateTime?
+
+  // Connection info
+  clientInfo Json? // Device, browser info
+  streamInfo Json? // Video/audio stream metadata
+
+  // ✨ Checkpoint file storage (NEW - replaces AiDataPoint table)
+  checkpointFilePath String? @db.VarChar(500) // Relative path to JSON file
+  checkpointCount    Int     @default(0) // Number of data points
+  fileSize           Int? // File size in bytes
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  aggregate   AiAnalysisAggregate?
+  anomalies   AiAnomaly[]
+  checkpoints AiCheckpoint[]
+
+  @@index([sessionId])
+  @@index([examResultId])
+  @@index([status])
+  @@index([startTime])
+  @@map("ai_sessions")
+}
+
+enum AiSessionStatus {
+  ACTIVE // 会话活跃（WebRTC推流中 + AI分析中）
+  COMPLETED // 会话完成
+  FAILED // 会话失败
+}
+
+// ❌ AiDataPoint table removed - data now stored in JSON files
+// See AiSession.checkpointFilePath for file location
+
+model AiAnalysisAggregate {
+  id           String     @id @default(cuid())
+  sessionId    String     @unique
+  session      AiSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  examResultId String     @unique
+  examResult   ExamResult @relation("AiAnalysisToExamResult", fields: [examResultId], references: [id], onDelete: Cascade)
+
+  // Emotion aggregates
+  avgValence          Float? // Average emotional valence
+  avgArousal          Float? // Average emotional arousal
+  dominantEmotion     String? @db.VarChar(50)
+  emotionDistribution Json? // Distribution of emotions
+
+  // Attention aggregates
+  avgAttention         Float? // Average attention score
+  attentionVariability Float? // Std deviation
+  distractionEvents    Int    @default(0)
+
+  // Engagement metrics
+  engagementScore  Float? // Overall engagement 0-1
+  consistencyScore Float? // How consistent was behavior
+
+  // Physiological aggregates
+  avgHeartRate         Float?
+  heartRateVariability Float?
+  stressIndicators     Json? // Various stress metrics
+
+  // Quality metrics
+  dataQuality        Float @default(0) // 0-1, data reliability
+  analysisConfidence Float @default(0) // 0-1, AI confidence
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([examResultId])
+  @@index([engagementScore])
+  @@map("ai_analysis_aggregates")
+}
+
+model AiAnomaly {
+  id        String    @id @default(cuid())
+  sessionId String
+  session   AiSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Anomaly info
+  type       AnomalyType
+  severity   AnomalySeverity
+  timestamp  DateTime
+  duration   Int? // Seconds
+  confidence Float           @default(0) // 0-1
+
+  // Description
+  description String @db.Text
+  metadata    Json? // Additional context
+
+  // System fields
+  createdAt DateTime @default(now())
+
+  @@index([sessionId, timestamp])
+  @@index([type, severity])
+  @@map("ai_anomalies")
+}
+
+enum AnomalyType {
+  MULTIPLE_FACES
+  NO_FACE_DETECTED
+  UNUSUAL_MOVEMENT
+  ATTENTION_DROP
+  EMOTIONAL_SPIKE
+  TECHNICAL_ISSUE
+}
+
+enum AnomalySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model AiCheckpoint {
+  id        String    @id @default(cuid())
+  sessionId String
+  session   AiSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Checkpoint info
+  timestamp DateTime
+  eventType CheckpointType
+  metadata  Json? // Event-specific data
+
+  @@index([sessionId, timestamp])
+  @@index([eventType])
+  @@map("ai_checkpoints")
+}
+
+enum CheckpointType {
+  SESSION_START
+  SESSION_END
+  EXAM_START
+  EXAM_END
+  QUESTION_ANSWERED
+  CALIBRATION
+  QUALITY_CHECK
+}
+
+// ================================================================================
+// DOMAIN 5: SYSTEM MANAGEMENT
+// ================================================================================
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     LogLevel
+  service   String   @db.VarChar(50) // api, web, ai, etc.
+  category  String   @db.VarChar(100)
+  message   String   @db.Text
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  // Request context
+  userId    String? @db.VarChar(50)
+  sessionId String? @db.VarChar(100)
+  requestId String? @db.VarChar(100)
+  ipAddress String? @db.VarChar(45)
+
+  @@index([level, timestamp])
+  @@index([service, category])
+  @@index([userId])
+  @@map("system_logs")
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+model SystemConfig {
+  id          String  @id @default(cuid())
+  key         String  @unique @db.VarChar(100)
+  value       Json
+  description String? @db.Text
+  isActive    Boolean @default(true)
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  action     AuditAction
+  resource   String      @db.VarChar(100) // table name
+  resourceId String      @db.VarChar(50) // record ID
+
+  // Change details
+  oldValues Json? // Previous values
+  newValues Json? // New values
+  changes   Json? // Specific changes
+
+  // Context
+  userId    String? @db.VarChar(50)
+  sessionId String? @db.VarChar(100)
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.Text
+
+  // System fields
+  timestamp DateTime @default(now())
+
+  @@index([action, timestamp])
+  @@index([resource, resourceId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+}

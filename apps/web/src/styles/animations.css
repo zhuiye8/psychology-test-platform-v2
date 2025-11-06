@@ -1,0 +1,142 @@
+/* 动画系统 - 关键帧和过渡动画 */
+
+/* ========== 关键帧动画 ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ========== 实用动画类 ========== */
+.animate-fadeIn {
+  animation: fadeIn 0.3s var(--easing-ease-out);
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s var(--easing-ease-out);
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s var(--easing-ease-out);
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--easing-ease-in-out) infinite;
+}
+
+/* ========== 页面进入动画 ========== */
+.page-enter {
+  animation: slideUp 0.5s var(--easing-ease-out);
+}
+
+/* ========== 列表渐进式动画 ========== */
+.ant-list-item {
+  animation: slideUp 0.2s var(--easing-ease-out);
+}
+
+.ant-list-item:nth-child(1) { animation-delay: 0ms; }
+.ant-list-item:nth-child(2) { animation-delay: 50ms; }
+.ant-list-item:nth-child(3) { animation-delay: 100ms; }
+.ant-list-item:nth-child(4) { animation-delay: 150ms; }
+.ant-list-item:nth-child(5) { animation-delay: 200ms; }
+
+/* ========== 表格渐进式动画 ========== */
+.ant-table-tbody > tr {
+  animation: fadeIn 0.2s var(--easing-ease-out);
+}
+
+.ant-table-tbody > tr:nth-child(1) { animation-delay: 0ms; }
+.ant-table-tbody > tr:nth-child(2) { animation-delay: 30ms; }
+.ant-table-tbody > tr:nth-child(3) { animation-delay: 60ms; }
+.ant-table-tbody > tr:nth-child(4) { animation-delay: 90ms; }
+.ant-table-tbody > tr:nth-child(5) { animation-delay: 120ms; }
+
+/* ========== Kanban看板动画 ========== */
+.kanban-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.kanban-lane {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-lane-header {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-lane-header.collapsed:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* ========== 减少动画偏好支持 ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

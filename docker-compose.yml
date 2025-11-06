@@ -1,0 +1,87 @@
+# 心理测试平台 2.0 重构版 - 独立开发环境
+# 使用新端口避免与旧项目冲突
+
+version: '3.8'
+
+services:
+  # PostgreSQL数据库 - 新端口5435
+  postgres-refactor:
+    image: postgres:15-alpine
+    container_name: postgres_refactor
+    restart: unless-stopped
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: psychology_user
+      POSTGRES_PASSWORD: psychology_refactor_pass
+      POSTGRES_DB: psychology_refactor
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_refactor_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - psychology_refactor_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U psychology_user -d psychology_refactor"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis缓存 - 新端口6380
+  redis-refactor:
+    image: redis:7-alpine
+    container_name: redis_refactor
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_refactor_data:/data
+    networks:
+      - psychology_refactor_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Adminer数据库管理工具 - 新端口5436
+  adminer:
+    image: adminer:latest
+    container_name: adminer_refactor
+    restart: unless-stopped
+    ports:
+      - "5436:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres-refactor
+    depends_on:
+      - postgres-refactor
+    networks:
+      - psychology_refactor_network
+
+  # Redis Commander管理工具 - 新端口6381
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_commander_refactor
+    restart: unless-stopped
+    ports:
+      - "6381:8081"
+    environment:
+      REDIS_HOSTS: "refactor:redis-refactor:6379"
+      REDIS_HOST: redis-refactor
+      REDIS_PORT: 6379
+    depends_on:
+      - redis-refactor
+    networks:
+      - psychology_refactor_network
+
+volumes:
+  postgres_refactor_data:
+    driver: local
+  redis_refactor_data:
+    driver: local
+
+networks:
+  psychology_refactor_network:
+    driver: bridge
+    name: psychology_refactor_network

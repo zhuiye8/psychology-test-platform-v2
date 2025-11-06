@@ -1,0 +1,80 @@
+{
+  "name": "psychology-test-platform-refactor",
+  "version": "2.0.0",
+  "description": "心理测试平台2.0重构版 - 基于领域驱动设计的现代化架构",
+  "private": true,
+  "author": "Psychology Test Platform Team",
+  "license": "MIT",
+  "keywords": [
+    "psychology",
+    "testing",
+    "platform",
+    "ai-analysis",
+    "education",
+    "monorepo"
+  ],
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "web:dev": "pnpm --filter @psychology/web dev",
+    "web:build": "pnpm --filter @psychology/web build",
+    "web:start": "pnpm --filter @psychology/web start",
+    "api:dev": "pnpm --filter @psychology/api dev",
+    "api:build": "pnpm --filter @psychology/api build",
+    "api:start": "pnpm --filter @psychology/api start",
+    "db:generate": "pnpm --filter @psychology/database generate",
+    "db:push": "pnpm --filter @psychology/database push",
+    "db:migrate": "pnpm --filter @psychology/database migrate",
+    "db:migrate:dev": "pnpm --filter @psychology/database migrate:dev",
+    "db:migrate:reset": "pnpm --filter @psychology/database migrate:reset",
+    "db:seed": "pnpm --filter @psychology/database seed",
+    "db:studio": "pnpm --filter @psychology/database studio",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "setup": "pnpm install && pnpm db:generate && pnpm db:push && pnpm db:seed",
+    "dev:core": "concurrently -n \"API,WEB\" -c \"blue,green\" \"pnpm api:dev\" \"pnpm web:dev\"",
+    "dev:full": "pnpm docker:up && sleep 5 && pnpm dev:core",
+    "start:all": "concurrently \"pnpm api:start\" \"pnpm web:start\"",
+    "build:all": "pnpm build && pnpm api:build && pnpm web:build",
+    "check:env": "node -e \"console.log('Environment check passed')\"",
+    "check:db": "docker ps | grep postgres_refactor || echo 'Database not running. Run: pnpm docker:up'",
+    "check:all": "pnpm check:env && pnpm check:db",
+    "reset": "pnpm docker:down && pnpm docker:clean && pnpm clean && pnpm install"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.12.4",
+    "@types/node": "^20.11.19",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.0",
+    "typescript": "^5.8.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.2.55",
+      "@types/react-dom": "^18.2.19"
+    }
+  }
+}

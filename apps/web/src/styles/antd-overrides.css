@@ -1,0 +1,166 @@
+/* Ant Design 组件深度定制 - 仅包含核心必要样式 */
+
+/* ========== Card 卡片 ========== */
+.ant-card {
+  border-radius: var(--border-radius-xl) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--color-neutral-100) !important;
+  transition: all var(--duration-normal) var(--easing-ease-out) !important;
+  position: relative;
+}
+
+.ant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--easing-ease-out);
+}
+
+.ant-card:hover {
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-2px);
+  border-color: var(--color-neutral-200) !important;
+}
+
+.ant-card:hover::before {
+  opacity: 1;
+}
+
+/* ========== Button 按钮 ========== */
+.ant-btn {
+  border-radius: var(--border-radius-md) !important;
+  font-weight: var(--font-weight-medium) !important;
+  transition: all var(--duration-normal) var(--easing-ease-out) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.ant-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s var(--easing-ease-out);
+}
+
+.ant-btn:hover::before {
+  left: 100%;
+}
+
+.ant-btn-primary {
+  background: var(--gradient-primary) !important;
+  border: none !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.ant-btn-primary:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg), 0 8px 20px rgba(79, 70, 229, 0.3) !important;
+}
+
+.ant-btn-default:hover {
+  border-color: var(--color-primary-400) !important;
+  color: var(--color-primary-600) !important;
+  background: var(--color-primary-50) !important;
+}
+
+/* ========== Menu 菜单 ========== */
+.ant-menu-item {
+  border-radius: var(--border-radius-md) !important;
+  transition: all var(--duration-normal) var(--easing-ease-out) !important;
+  position: relative;
+}
+
+.ant-menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary-500);
+  transform: scaleX(0);
+  transition: transform var(--duration-normal) var(--easing-ease-out);
+}
+
+.ant-menu-item:hover {
+  background: var(--color-primary-50) !important;
+  color: var(--color-primary-600) !important;
+  transform: translateX(4px);
+}
+
+.ant-menu-item-selected {
+  background: var(--color-primary-50) !important;
+  color: var(--color-primary-600) !important;
+  font-weight: var(--font-weight-semibold) !important;
+}
+
+.ant-menu-item-selected::before {
+  transform: scaleX(1);
+}
+
+/* ========== Modal 模态框 ========== */
+.ant-modal-mask {
+  backdrop-filter: blur(4px) !important;
+}
+
+.ant-modal-content {
+  border-radius: var(--border-radius-2xl) !important;
+  box-shadow: var(--shadow-2xl) !important;
+  border: 2px solid var(--color-neutral-100) !important;
+}
+
+.ant-modal-header {
+  background: rgba(249, 250, 251, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: var(--border-radius-2xl) var(--border-radius-2xl) 0 0 !important;
+}
+
+/* ========== Table 表格 ========== */
+.ant-table-tbody > tr:hover > td {
+  background: rgba(79, 70, 229, 0.04) !important;
+}
+
+/* ========== Input 输入框 ========== */
+.ant-input:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: var(--color-primary-500) !important;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1) !important;
+}
+
+/* ========== Statistic 统计 ========== */
+.ant-statistic-content {
+  background: var(--gradient-primary) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ========== Select 选择器 ========== */
+.ant-select-dropdown {
+  backdrop-filter: blur(20px) !important;
+  border-radius: var(--border-radius-xl) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.ant-select-item:hover {
+  background: var(--color-primary-50) !important;
+  color: var(--color-primary-600) !important;
+  transform: translateX(4px);
+}
+
+/* ========== Form 表单 ========== */
+.ant-form-item-explain-error {
+  padding: var(--spacing-2) var(--spacing-3);
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-error);
+}
