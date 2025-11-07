@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, Min, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, Min, MaxLength, Matches } from 'class-validator';
 
 export class CreatePaperDto {
   @ApiProperty({ description: 'Paper title', example: '心理健康量表' })
@@ -12,10 +12,17 @@ export class CreatePaperDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Paper category', required: false })
+  @ApiProperty({
+    description: 'Paper category (optional)',
+    required: false,
+    example: '心理评估'
+  })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(100, { message: '分类名称不能超过100个字符' })
+  @Matches(/^(?!__).*(?<!__)$/, {
+    message: '分类名称不能以双下划线开头或结尾'
+  })
   category?: string;
 
   @ApiProperty({ description: 'Time limit in minutes', required: false })

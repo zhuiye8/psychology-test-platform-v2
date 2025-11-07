@@ -35,8 +35,12 @@ export interface ExamAnswer {
   questionId: string;
   selectedOptions?: string[];
   textAnswer?: string;
+  /** @deprecated 已废弃，请使用points字段 */
   isCorrect?: boolean;
-  score?: number;
+  /** 实际得分 */
+  points: number;
+  /** 题目最大分值 */
+  maxPoints: number;
 }
 
 /**

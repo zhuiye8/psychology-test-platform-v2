@@ -7,10 +7,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Input, InputNumber, Button, Space, App, Tooltip } from 'antd';
+import { Input, InputNumber, Button, Space, App, Tooltip, Alert, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { QuestionOption } from '../../services/questions';
 import { QuestionType } from '../../services/questions';
+
+const { Text } = Typography;
 
 // ============================================================================
 // 类型定义
@@ -19,6 +21,8 @@ import { QuestionType } from '../../services/questions';
 export interface OptionEditorProps {
   /** 题目类型 */
   questionType: QuestionType;
+  /** 题目最大分值（用于超分警告） */
+  questionPoints?: number;
   /** 选项列表 */
   value?: QuestionOption[];
   /** 选项变化回调 */
@@ -42,6 +46,7 @@ function generateId(): string {
 
 export function OptionEditor({
   questionType,
+  questionPoints,
   value = [],
   onChange,
   disabled = false,
@@ -49,12 +54,21 @@ export function OptionEditor({
   const { message } = App.useApp();
   const [options, setOptions] = useState<QuestionOption[]>(value);
 
+  // ✨ 计算选项总分
+  const totalScore = options.reduce((sum, opt) => sum + (opt.score || 0), 0);
+  const isOverMax = questionPoints !== undefined && totalScore > questionPoints;
+
   // 监听外部value变化，同步到本地状态
+  // 使用JSON序列化进行深度比较，避免引用变化导致的无限循环
   useEffect(() => {
-    if (value && value.length > 0) {
-      setOptions(value);
+    if (value !== undefined) {
+      const valueStr = JSON.stringify(value);
+      const optionsStr = JSON.stringify(options);
+      if (valueStr !== optionsStr) {
+        setOptions(value);
+      }
     }
-  }, [value]);
+  }, [value]); // 只依赖value，options不加入依赖
 
   // 更新选项到父组件
   const updateOptions = (newOptions: QuestionOption[]) => {
@@ -67,8 +81,7 @@ export function OptionEditor({
     const newOption: QuestionOption = {
       id: generateId(),
       text: '',
-      isCorrect: false,  // 保留兼容性
-      score: 0,          // 默认分数为0
+      score: 0,  // 默认分数为0
     };
     updateOptions([...options, newOption]);
   };
@@ -157,6 +170,23 @@ export function OptionEditor({
           </div>
         ))}
       </div>
+
+      {/* ✨ 超分警告（仅多选题） */}
+      {isOverMax && questionType === QuestionType.MULTIPLE_CHOICE && (
+        <Alert
+          type="warning"
+          showIcon
+          message="选项总分超过题目最大分"
+          description={
+            <span>
+              当前选项总分为 <Text strong>{totalScore}分</Text>，超过题目最大分{' '}
+              <Text strong>{questionPoints}分</Text>。
+              这意味着学生可能获得超出题目分值的分数（多选题全选正确选项时）。
+            </span>
+          }
+          className="text-sm"
+        />
+      )}
 
       <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
         💡 提示：为每个选项设置分数（0-100分），用于心理测试的量化评分。不同选项可以有不同的分数。

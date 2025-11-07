@@ -110,11 +110,11 @@ export default function ResultDetailPage() {
   // --------------------------------------------------------------------------
 
   const totalQuestions = result?.answers.length || 0;
-  const correctCount =
-    result?.answers.filter((a) => a.isCorrect).length || 0;
-  const wrongCount = totalQuestions - correctCount;
-  const accuracy =
-    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+  // ✨ 基于points计算得分率（替代isCorrect的正确率）
+  const totalEarned = result?.answers.reduce((sum, a) => sum + (a.points || 0), 0) || 0;
+  const totalMax = result?.answers.reduce((sum, a) => sum + (a.maxPoints || 0), 0) || 0;
+  const scoreRate = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
 
   // 格式化时长
   const formatDuration = (seconds?: number) => {
@@ -210,20 +210,18 @@ export default function ResultDetailPage() {
               ? dayjs(result.submittedAt).format('YYYY-MM-DD HH:mm:ss')
               : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="正确题数">
-            <Text type="success">
-              <CheckCircleOutlined /> {correctCount} 题
-            </Text>
+          <Descriptions.Item label="总题数">
+            <Text>{totalQuestions} 题</Text>
           </Descriptions.Item>
-          <Descriptions.Item label="错误题数">
-            <Text type="danger">
-              <CloseCircleOutlined /> {wrongCount} 题
-            </Text>
-          </Descriptions.Item>
-          <Descriptions.Item label="正确率" span={2}>
-            <Tag color={accuracy >= 80 ? 'success' : accuracy >= 60 ? 'warning' : 'error'}>
-              {accuracy}%
+          <Descriptions.Item label="得分率">
+            <Tag color={scoreRate >= 80 ? 'success' : scoreRate >= 60 ? 'warning' : 'error'}>
+              {scoreRate}%
             </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="实际得分" span={2}>
+            <Text strong style={{ fontSize: 16 }}>
+              {totalEarned.toFixed(1)} / {totalMax.toFixed(1)} 分
+            </Text>
           </Descriptions.Item>
         </Descriptions>
       </Card>
@@ -250,7 +248,17 @@ export default function ResultDetailPage() {
                     key={answer.id}
                     size="small"
                     className={`border-l-4 ${
-                      answer.isCorrect ? 'border-l-green-500' : 'border-l-red-500'
+                      (() => {
+                        // ✨ 基于得分率计算边框颜色
+                        const scorePercent = answer.maxPoints > 0
+                          ? (answer.points / answer.maxPoints) * 100
+                          : 0;
+                        return scorePercent >= 100
+                          ? 'border-l-green-500'  // 满分或超分
+                          : scorePercent >= 50
+                          ? 'border-l-yellow-500'  // 部分得分
+                          : 'border-l-gray-400';   // 低分或零分
+                      })()
                     }`}
                   >
                     {/* 题目标题 */}
@@ -258,13 +266,19 @@ export default function ResultDetailPage() {
                       <Space>
                         <Tag color="blue">第 {index + 1} 题</Tag>
                         <Tag>{question.type === 'SINGLE_CHOICE' ? '单选题' : question.type === 'MULTIPLE_CHOICE' ? '多选题' : question.type === 'TEXT' ? '文本题' : '问答题'}</Tag>
-                        {answer.isCorrect !== undefined && (
-                          <Tag color={answer.isCorrect ? 'success' : 'error'}>
-                            {answer.isCorrect ? '正确' : '错误'}
-                          </Tag>
+                        {/* ✨ 显示维度（如果有） */}
+                        {question.dimension && (
+                          <Tag color="cyan">{question.dimension}</Tag>
                         )}
+                        {/* ✨ 显示实际得分 */}
+                        <Tag color={
+                          answer.points >= answer.maxPoints ? 'success' :
+                          answer.points > 0 ? 'warning' : 'default'
+                        }>
+                          {answer.points} / {answer.maxPoints} 分
+                        </Tag>
                       </Space>
-                      <Tag color="purple">{question.points} 分</Tag>
+                      <Tag color="purple">题目分值: {question.points} 分</Tag>
                     </div>
 
                     {/* 题目内容 */}
@@ -284,36 +298,28 @@ export default function ResultDetailPage() {
                       <div className="mb-3 space-y-2">
                         {question.options.map((option, optIndex) => {
                           const isSelected = answer.selectedOptions?.includes(option.id);
-                          const isCorrect = option.isCorrect;
 
                           return (
                             <div
                               key={option.id}
                               className={`p-2 rounded ${
-                                isSelected && isCorrect
-                                  ? 'bg-green-50 border border-green-300'
-                                  : isSelected && !isCorrect
-                                  ? 'bg-red-50 border border-red-300'
-                                  : isCorrect
-                                  ? 'bg-blue-50 border border-blue-300'
-                                  : 'bg-gray-50'
+                                isSelected
+                                  ? 'bg-blue-50 border border-blue-300'  // 学生选择
+                                  : 'bg-gray-50'  // 未选择
                               }`}
                             >
-                              <Space>
-                                <Text strong>
-                                  {String.fromCharCode(65 + optIndex)}.
-                                </Text>
-                                <Text>{option.text}</Text>
-                                {isCorrect && (
-                                  <Tag color="success" className="ml-2">
-                                    正确答案
-                                  </Tag>
-                                )}
-                                {isSelected && (
-                                  <Tag color={isCorrect ? 'success' : 'error'}>
-                                    学生选择
-                                  </Tag>
-                                )}
+                              <Space className="w-full justify-between">
+                                <Space>
+                                  <Text strong>
+                                    {String.fromCharCode(65 + optIndex)}.
+                                  </Text>
+                                  <Text>{option.text}</Text>
+                                  {isSelected && (
+                                    <Tag color="blue">已选择</Tag>
+                                  )}
+                                </Space>
+                                {/* ✨ 显示选项分数 */}
+                                <Tag color="purple">{option.score || 0}分</Tag>
                               </Space>
                             </div>
                           );
@@ -333,15 +339,24 @@ export default function ResultDetailPage() {
                       </div>
                     )}
 
-                    {/* 得分 */}
-                    {answer.score !== undefined && (
-                      <div className="flex items-center justify-between pt-3 border-t">
-                        <Text type="secondary">本题得分：</Text>
-                        <Tag color={answer.isCorrect ? 'success' : 'error'}>
-                          {answer.score} / {question.points} 分
+                    {/* 得分（支持超分显示）*/}
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <Text type="secondary">本题得分：</Text>
+                      <Space>
+                        <Tag color={
+                          answer.points >= answer.maxPoints ? 'success' :
+                          answer.points > 0 ? 'warning' : 'default'
+                        }>
+                          {answer.points} / {answer.maxPoints} 分
                         </Tag>
-                      </div>
-                    )}
+                        {/* ✨ 超分标记 */}
+                        {answer.points > answer.maxPoints && (
+                          <Tag color="gold" icon={<TrophyOutlined />}>
+                            超分 +{(answer.points - answer.maxPoints).toFixed(1)}
+                          </Tag>
+                        )}
+                      </Space>
+                    </div>
                   </Card>
                 );
               })}

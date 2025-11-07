@@ -58,6 +58,19 @@ export function getQuestionColumns(handlers: QuestionTableHandlers): ColumnsType
       },
     },
     {
+      title: '维度',
+      dataIndex: 'dimension',
+      key: 'dimension',
+      width: 120,
+      render: (dimension?: string) => (
+        dimension ? (
+          <Tag color="cyan">{dimension}</Tag>
+        ) : (
+          <span className="text-gray-400">-</span>
+        )
+      ),
+    },
+    {
       title: '分值',
       dataIndex: 'points',
       key: 'points',

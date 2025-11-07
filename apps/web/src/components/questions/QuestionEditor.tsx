@@ -63,6 +63,8 @@ export function QuestionEditor({
 }: QuestionEditorProps) {
   // 监听题目类型变化
   const questionType = Form.useWatch('type', form);
+  // ✨ 监听题目分值变化（用于超分警告）
+  const questionPoints = Form.useWatch('points', form);
 
   // 判断是否为选择题
   const isChoiceQuestion =
@@ -160,13 +162,26 @@ export function QuestionEditor({
         />
       </Form.Item>
 
+      {/* 题目维度（可选） */}
+      <Form.Item
+        label="题目维度"
+        name="dimension"
+        tooltip="可选：心理测试的维度分类，如'家庭生活'、'学业表现'等"
+      >
+        <Input
+          placeholder="可选：如'家庭生活'、'学业表现'、'同伴压力'等..."
+          maxLength={100}
+          showCount
+        />
+      </Form.Item>
+
       {/* 选项编辑（仅选择题） */}
       {isChoiceQuestion && (
         <Form.Item
           name="options"
           rules={[{ required: true, message: '请添加选项' }]}
         >
-          <OptionEditor questionType={questionType} />
+          <OptionEditor questionType={questionType} questionPoints={questionPoints} />
         </Form.Item>
       )}
 
@@ -181,19 +196,26 @@ export function QuestionEditor({
 
       {/* 显示条件配置（高级功能） */}
       {availableQuestions.length > 0 && (
-        <Collapse ghost>
-          <Collapse.Panel header="显示条件（高级功能）" key="condition">
-            <Form.Item
-              name="displayCondition"
-              tooltip="配置此题目的显示条件，可以根据前面题目的答案决定是否显示"
-            >
-              <ConditionBuilder
-                availableQuestions={availableQuestions}
-                currentQuestionId={currentQuestionId}
-              />
-            </Form.Item>
-          </Collapse.Panel>
-        </Collapse>
+        <Collapse
+          ghost
+          items={[
+            {
+              key: 'condition',
+              label: '显示条件（高级功能）',
+              children: (
+                <Form.Item
+                  name="displayCondition"
+                  tooltip="配置此题目的显示条件，可以根据前面题目的答案决定是否显示"
+                >
+                  <ConditionBuilder
+                    availableQuestions={availableQuestions}
+                    currentQuestionId={currentQuestionId}
+                  />
+                </Form.Item>
+              ),
+            },
+          ]}
+        />
       )}
 
       <Divider />

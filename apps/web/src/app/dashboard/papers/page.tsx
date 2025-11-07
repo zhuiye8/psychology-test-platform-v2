@@ -9,6 +9,7 @@ import {
   Popconfirm,
   Input,
   Select,
+  AutoComplete,
   Form,
   App,
 } from 'antd';
@@ -403,15 +404,22 @@ export default function PapersPage() {
           <Input.TextArea rows={3} placeholder="请输入试卷描述（可选）" />
         </Form.Item>
 
-        <Form.Item label="试卷分类" name="category">
-          <Select placeholder="选择分类（可选）" allowClear>
-            {categories.map((cat) => (
-              <Select.Option key={cat} value={cat}>
-                {cat}
-              </Select.Option>
-            ))}
-            <Select.Option value="__custom__">+ 自定义分类</Select.Option>
-          </Select>
+        <Form.Item
+          label="试卷分类"
+          name="category"
+          tooltip="可选择已有分类或输入新分类"
+        >
+          <AutoComplete
+            placeholder="选择或输入分类（可选）"
+            options={categories.map(cat => ({
+              value: cat,
+              label: cat
+            }))}
+            allowClear
+            filterOption={(inputValue, option) =>
+              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+            }
+          />
         </Form.Item>
 
         <Form.Item

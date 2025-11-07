@@ -70,10 +70,10 @@ export default function ExamResultPage() {
   // --------------------------------------------------------------------------
 
   const totalQuestions = result?.answers.length || 0;
-  const correctCount =
-    result?.answers.filter((a) => a.isCorrect).length || 0;
-  const accuracy =
-    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  // ✨ 基于points计算得分率（替代isCorrect的正确率）
+  const totalEarned = result?.answers.reduce((sum, a) => sum + (a.points || 0), 0) || 0;
+  const totalMax = result?.answers.reduce((sum, a) => sum + (a.maxPoints || 0), 0) || 0;
+  const scoreRate = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
   const passed = result?.passed ?? false;
 
   // 格式化时长
@@ -152,8 +152,8 @@ export default function ExamResultPage() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="正确率"
-                    value={accuracy}
+                    title="得分率"
+                    value={scoreRate}
                     suffix="%"
                     valueStyle={{ color: '#1890ff' }}
                     prefix={<CheckCircleOutlined />}
@@ -187,15 +187,15 @@ export default function ExamResultPage() {
                     <div className="text-xl font-medium">{totalQuestions} 题</div>
                   </Col>
                   <Col span={6}>
-                    <div className="text-gray-600">正确</div>
-                    <div className="text-xl font-medium text-green-600">
-                      <CheckCircleOutlined /> {correctCount} 题
+                    <div className="text-gray-600">实际得分</div>
+                    <div className="text-xl font-medium text-blue-600">
+                      <TrophyOutlined /> {totalEarned.toFixed(1)} 分
                     </div>
                   </Col>
                   <Col span={6}>
-                    <div className="text-gray-600">错误</div>
-                    <div className="text-xl font-medium text-red-600">
-                      <CloseCircleOutlined /> {totalQuestions - correctCount} 题
+                    <div className="text-gray-600">总分</div>
+                    <div className="text-xl font-medium text-gray-600">
+                      {totalMax.toFixed(1)} 分
                     </div>
                   </Col>
                   <Col span={6}>

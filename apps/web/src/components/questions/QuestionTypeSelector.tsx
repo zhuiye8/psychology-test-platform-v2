@@ -33,6 +33,7 @@ export interface QuestionTypeSelectorProps {
 // 常量定义
 // ============================================================================
 
+// ✨ 仅支持选择题类型（暂不支持主观题自动评分）
 const QUESTION_TYPE_OPTIONS = [
   {
     value: QuestionType.SINGLE_CHOICE,
@@ -46,18 +47,19 @@ const QUESTION_TYPE_OPTIONS = [
     icon: <CheckSquareOutlined />,
     description: '从多个选项中选择一个或多个正确答案',
   },
-  {
-    value: QuestionType.TEXT,
-    label: '文本题',
-    icon: <EditOutlined />,
-    description: '简短文本输入（用于填空、简答等）',
-  },
-  {
-    value: QuestionType.ESSAY,
-    label: '问答题',
-    icon: <FileTextOutlined />,
-    description: '长文本输入（用于论述、作文等）',
-  },
+  // ❌ TEXT和ESSAY暂时隐藏（需要手动评分功能）
+  // {
+  //   value: QuestionType.TEXT,
+  //   label: '文本题',
+  //   icon: <EditOutlined />,
+  //   description: '简短文本输入（用于填空、简答等）',
+  // },
+  // {
+  //   value: QuestionType.ESSAY,
+  //   label: '问答题',
+  //   icon: <FileTextOutlined />,
+  //   description: '长文本输入（用于论述、作文等）',
+  // },
 ];
 
 // ============================================================================

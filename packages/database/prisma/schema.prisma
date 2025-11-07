@@ -115,6 +115,7 @@ model Question {
   title       String    @db.Text
   type        QuestionType
   description String?   @db.Text
+  dimension   String?   @db.VarChar(100) // ✨ 维度字段（可选，用于心理测试分类）
   explanation String?   @db.Text
   
   // Configuration
@@ -124,7 +125,7 @@ model Question {
   displayCondition Json? // Conditional logic
   
   // Options for choice questions
-  options Json? // Array of {id, text, isCorrect}
+  options Json? // Array of {id, text, score}
   
   // System fields
   createdAt DateTime  @default(now())
@@ -155,29 +156,34 @@ model Exam {
   id      String @id @default(cuid())
   paperId String
   paper   Paper  @relation(fields: [paperId], references: [id])
-  
+
   // Basic info
   title       String @db.VarChar(200)
   description String? @db.Text
-  
+
   // Schedule
   startTime DateTime
   endTime   DateTime
   timeLimit Int? // Minutes, overrides paper setting
-  
+
   // Access control
   accessCode     String? @db.VarChar(20)
   allowedStudents Json? // Array of participant IDs
   maxAttempts    Int     @default(1)
-  
+
   // Configuration
   requireCamera     Boolean @default(false)
   requireMicrophone Boolean @default(false)
   enableAIAnalysis  Boolean @default(false)
-  
+
   // Status management
   status ExamStatus @default(DRAFT)
-  
+
+  // ✨ Snapshot mechanism (created on Exam creation)
+  paperSnapshot     Json?  // Paper config snapshot {title, description, timeLimit}
+  questionsSnapshot Json?  // Questions array snapshot (complete with options and scores)
+  snapshotCreatedAt DateTime? // Snapshot creation timestamp
+
   // System fields
   teacherId String
   teacher   Teacher @relation(fields: [teacherId], references: [id])
@@ -196,6 +202,7 @@ model Exam {
   @@index([startTime, endTime])
   @@index([accessCode])
   @@index([deletedAt])
+  @@index([snapshotCreatedAt])
 }
 
 enum ExamStatus {
@@ -264,9 +271,9 @@ model Answer {
   selectedOptions Json? // Array of option IDs for choice questions
   textAnswer      String? @db.Text
 
-  // Scoring
-  isCorrect Boolean? // Null for subjective questions
-  points    Float    @default(0)
+  // ✨ Unified scoring system (based on option.score)
+  points    Float @default(0)  // Actual points earned
+  maxPoints Float @default(0)  // Question max points (for percentage calculation)
 
   // ⭐ Answer timing fields (for AI analysis correlation)
   questionDisplayedAt DateTime? // When question was first shown to student

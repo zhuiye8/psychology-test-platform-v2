@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Card,
@@ -63,6 +63,7 @@ export default function QuestionsPage() {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [dimensionFilter, setDimensionFilter] = useState<string>('all');
   const [paperFilter, setPaperFilter] = useState<string>(urlPaperId || 'all');
   const [papers, setPapers] = useState<Array<{ id: string; title: string }>>([]);
   const [isEditorVisible, setIsEditorVisible] = useState(false);
@@ -73,6 +74,18 @@ export default function QuestionsPage() {
 
   // 判断是否从试卷详情进入
   const isFromPaperDetail = !!urlPaperId;
+
+  // --------------------------------------------------------------------------
+  // 计算属性
+  // --------------------------------------------------------------------------
+
+  /** 从所有题目中提取唯一的维度列表 */
+  const uniqueDimensions = useMemo(() => {
+    const dimensions = questions
+      .map(q => q.dimension)
+      .filter((d): d is string => !!d); // 过滤掉空值并类型守卫
+    return Array.from(new Set(dimensions));
+  }, [questions]);
 
   // --------------------------------------------------------------------------
   // 数据加载函数
@@ -100,10 +113,13 @@ export default function QuestionsPage() {
       setLoading(true);
       const data = await questionsApi.findAllByPaper(paperFilter);
 
-      // 前端筛选（按类型和搜索文本）
+      // 前端筛选（按类型、维度和搜索文本）
       let filteredData = data;
       if (typeFilter !== 'all') {
         filteredData = filteredData.filter((q) => q.type === typeFilter);
+      }
+      if (dimensionFilter !== 'all') {
+        filteredData = filteredData.filter((q) => q.dimension === dimensionFilter);
       }
       if (searchText) {
         filteredData = filteredData.filter((q) =>
@@ -129,12 +145,12 @@ export default function QuestionsPage() {
     loadPapers();
   }, []);
 
-  /** 试卷变化时加载题目 */
+  /** 试卷或筛选条件变化时加载题目 */
   useEffect(() => {
     if (paperFilter !== 'all') {
       loadQuestions();
     }
-  }, [paperFilter, typeFilter, searchText]);
+  }, [paperFilter, typeFilter, dimensionFilter, searchText]);
 
   /** 监听 URL 参数变化 */
   useEffect(() => {
@@ -313,8 +329,22 @@ export default function QuestionsPage() {
               <Select.Option value="all">全部题型</Select.Option>
               <Select.Option value={QuestionType.SINGLE_CHOICE}>单选题</Select.Option>
               <Select.Option value={QuestionType.MULTIPLE_CHOICE}>多选题</Select.Option>
-              <Select.Option value={QuestionType.TEXT}>文本题</Select.Option>
-              <Select.Option value={QuestionType.ESSAY}>问答题</Select.Option>
+              {/* ❌ TEXT和ESSAY暂时隐藏（需要手动评分功能） */}
+              {/* <Select.Option value={QuestionType.TEXT}>文本题</Select.Option> */}
+              {/* <Select.Option value={QuestionType.ESSAY}>问答题</Select.Option> */}
+            </Select>
+            <Select
+              value={dimensionFilter}
+              onChange={setDimensionFilter}
+              style={{ width: 150 }}
+              placeholder="筛选维度"
+            >
+              <Select.Option value="all">全部维度</Select.Option>
+              {uniqueDimensions.map((dim) => (
+                <Select.Option key={dim} value={dim}>
+                  {dim}
+                </Select.Option>
+              ))}
             </Select>
             <Search
               placeholder="搜索题目内容"

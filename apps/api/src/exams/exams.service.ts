@@ -82,9 +82,15 @@ export class ExamsService {
   async create(teacherId: string, createExamDto: CreateExamDto) {
     const { paperId, allowedStudents, ...examData } = createExamDto;
 
-    // Verify paper exists and belongs to teacher
+    // Verify paper exists and belongs to teacher, and fetch all questions
     const paper = await this.db.paper.findUnique({
       where: { id: paperId, deletedAt: null },
+      include: {
+        questions: {
+          where: { deletedAt: null },
+          orderBy: { order: 'asc' },
+        },
+      },
     });
 
     if (!paper) {
@@ -95,6 +101,11 @@ export class ExamsService {
       throw new ForbiddenException('Access denied to this paper');
     }
 
+    // Validate exam has questions
+    if (!paper.questions || paper.questions.length === 0) {
+      throw new BadRequestException('Cannot create exam from paper without questions');
+    }
+
     // Validate dates
     const startTime = new Date(examData.startTime);
     const endTime = new Date(examData.endTime);
@@ -102,6 +113,37 @@ export class ExamsService {
     if (endTime <= startTime) {
       throw new BadRequestException('End time must be after start time');
     }
+
+    // ✨ Create snapshots (independent copy for this exam)
+    const paperSnapshot = {
+      id: paper.id,
+      title: paper.title,
+      description: paper.description,
+      category: paper.category,
+      timeLimit: paper.timeLimit,
+      allowRetake: paper.allowRetake,
+      showResultsImmediately: paper.showResultsImmediately,
+      randomizeQuestions: paper.randomizeQuestions,
+    };
+
+    const questionsSnapshot = paper.questions.map((q) => ({
+      id: q.id,
+      title: q.title,
+      description: q.description,
+      dimension: q.dimension, // ✨ 维度字段（用于心理测试分类）
+      type: q.type,
+      options: q.options, // Including score field
+      order: q.order,
+      points: q.points,
+      required: q.required,
+      displayCondition: q.displayCondition,
+    }));
+
+    const snapshotCreatedAt = new Date();
+
+    this.logger.log(
+      `Creating exam "${examData.title}" with snapshot: ${questionsSnapshot.length} questions`,
+    );
 
     return this.db.exam.create({
       data: {
@@ -112,6 +154,10 @@ export class ExamsService {
         endTime,
         allowedStudents: allowedStudents as any,
         status: ExamStatus.DRAFT,
+        // ✨ Snapshot fields
+        paperSnapshot,
+        questionsSnapshot,
+        snapshotCreatedAt,
       },
       include: {
         paper: { select: { id: true, title: true } },
@@ -216,9 +262,9 @@ export class ExamsService {
       throw new BadRequestException('Only draft exams can be published');
     }
 
-    // Validate exam has questions
-    if (!exam.paper.questions || exam.paper.questions.length === 0) {
-      throw new BadRequestException('Cannot publish exam without questions');
+    // ✨ Validate exam has snapshot (created during exam creation)
+    if (!exam.questionsSnapshot || (exam.questionsSnapshot as any[]).length === 0) {
+      throw new BadRequestException('Cannot publish exam without questions snapshot');
     }
 
     return this.db.exam.update({

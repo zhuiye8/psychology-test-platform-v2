@@ -124,12 +124,16 @@ export function ImportModal({ open, paperId, onCancel, onSuccess }: ImportModalP
 {`{
   "questions": [
     {
-      "title": "题目内容",
+      "title": "你最近感到压力大吗？",
+      "dimension": "家庭生活",
       "type": "SINGLE_CHOICE",
       "points": 5,
       "options": [
-        { "text": "选项A", "isCorrect": true },
-        { "text": "选项B", "isCorrect": false }
+        { "text": "非常符合", "score": 5 },
+        { "text": "比较符合", "score": 4 },
+        { "text": "一般", "score": 3 },
+        { "text": "不太符合", "score": 2 },
+        { "text": "完全不符合", "score": 1 }
       ]
     }
   ]

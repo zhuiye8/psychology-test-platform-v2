@@ -25,6 +25,10 @@ export enum QuestionType {
 export interface QuestionOptionApiModel {
   id: string;
   text: string;
+  /**
+   * @deprecated 已废弃，请使用score字段进行评分
+   * ⚠️ 此字段仅用于读取历史数据
+   */
   is_correct?: boolean;
   score?: number;  // 选项分数（用于心理测试）
 }
@@ -38,6 +42,7 @@ export interface QuestionApiModel {
   title: string;
   type: QuestionType;
   description?: string;
+  dimension?: string;  // 题目维度（可选）
   explanation?: string;
   order: number;
   required: boolean;
@@ -59,8 +64,14 @@ export interface QuestionApiModel {
 export interface QuestionOption {
   id: string;
   text: string;
-  isCorrect?: boolean;  // 保留兼容性，但不再使用
-  score?: number;       // 选项分数（用于心理测试，0-100）
+  /**
+   * @deprecated 已废弃，请使用score字段进行评分
+   * ⚠️ 此字段仅用于读取历史数据，创建/更新题目时不应包含此字段
+   * 后端DTO会拒绝包含isCorrect的请求（400错误）
+   */
+  isCorrect?: boolean;
+  /** 选项分数（用于心理测试，0-100） */
+  score?: number;
 }
 
 /**
@@ -72,11 +83,14 @@ export interface Question {
   title: string;
   type: QuestionType;
   description?: string;
+  /** 题目维度（可选，用于心理测试分类，如"家庭生活"、"学业表现"） */
+  dimension?: string;
   explanation?: string;
   order: number;
   required: boolean;
   points: number;
-  displayCondition?: any;
+  /** 显示条件（条件逻辑） */
+  displayCondition?: any; // TODO: 定义DisplayCondition类型
   options?: QuestionOption[];
   createdAt: string;
   updatedAt: string;
@@ -94,6 +108,8 @@ export interface CreateQuestionDto {
   title: string;
   type: QuestionType;
   description?: string;
+  /** 题目维度（可选，用于心理测试分类） */
+  dimension?: string;
   explanation?: string;
   order?: number;
   required?: boolean;

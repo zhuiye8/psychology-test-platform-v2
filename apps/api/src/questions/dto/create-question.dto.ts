@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsOptional, IsBoolean, IsInt, Min, IsJSON, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsBoolean, IsInt, IsNumber, Min, Max, IsJSON, IsArray, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum QuestionType {
@@ -10,18 +10,19 @@ export enum QuestionType {
 }
 
 export class QuestionOptionDto {
-  @ApiProperty()
+  @ApiProperty({ description: '选项ID' })
   @IsString()
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: '选项文本' })
   @IsString()
   text: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsBoolean()
-  isCorrect?: boolean;
+  @ApiProperty({ description: '选项分数（0-100）' })
+  @IsNumber()
+  @Min(-100)  // 允许负分（错误答案扣分）
+  @Max(100)   // 最高100分
+  score: number;
 }
 
 export class CreateQuestionDto {
@@ -37,6 +38,16 @@ export class CreateQuestionDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiProperty({
+    description: 'Question dimension (optional, for psychological tests)',
+    required: false,
+    example: '家庭生活'
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  dimension?: string;
 
   @ApiProperty({ description: 'Answer explanation', required: false })
   @IsOptional()

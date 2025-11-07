@@ -7,7 +7,6 @@
  */
 
 import { Modal, Typography, Divider, Tag, Space, Empty, Spin } from 'antd';
-import { CheckCircleFilled } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import papersApi, { type Paper } from '@/services/papers';
 import questionsApi, { type Question } from '@/services/questions';
@@ -82,13 +81,13 @@ export function PaperPreviewModal({ paperId, open, onCancel }: PaperPreviewModal
     return (
       <div className="ml-6 mt-2 space-y-2">
         {question.options.map((option, index) => (
-          <div key={option.id || index} className="flex items-center">
-            {option.isCorrect && (
-              <CheckCircleFilled className="text-green-500 mr-2" />
-            )}
-            <Text className={option.isCorrect ? 'font-medium text-green-600' : ''}>
-              {String.fromCharCode(65 + index)}. {option.text}
-            </Text>
+          <div key={option.id || index} className="flex items-center justify-between">
+            <div className="flex items-center flex-1">
+              <Text strong className="mr-2">{String.fromCharCode(65 + index)}.</Text>
+              <Text>{option.text}</Text>
+            </div>
+            {/* ✨ 显示选项分数 */}
+            <Tag color="purple">{option.score || 0}分</Tag>
           </div>
         ))}
       </div>

@@ -15,66 +15,54 @@ export class ResultsService {
   async startExam(examId: string, startExamDto: StartExamDto, ipAddress?: string, userAgent?: string) {
     const { participantId, participantName, accessCode } = startExamDto;
 
-    // Get exam with paper and questions
+    // 获取考试（包含快照）
     const exam = await this.db.exam.findUnique({
       where: { id: examId, deletedAt: null },
-      include: {
-        paper: {
-          include: {
-            questions: {
-              where: { deletedAt: null },
-              orderBy: { order: 'asc' },
-            },
-          },
-        },
-      },
     });
 
     if (!exam) {
       throw new NotFoundException('Exam not found');
     }
 
-    // Validate exam status
+    // ✨ 验证快照是否存在
+    if (!exam.questionsSnapshot || !(exam.questionsSnapshot as any[]).length) {
+      throw new BadRequestException('Exam snapshot not found');
+    }
+
+    // 验证考试状态
     if (exam.status !== 'PUBLISHED') {
       throw new BadRequestException('Exam is not available');
     }
 
-    // Validate time window
+    // 验证时间窗口
     const now = new Date();
-    if (now < exam.startTime) {
-      throw new BadRequestException('Exam has not started yet');
-    }
-    if (now > exam.endTime) {
-      throw new BadRequestException('Exam has ended');
+    if (now < exam.startTime || now > exam.endTime) {
+      throw new BadRequestException(now < exam.startTime ? 'Exam has not started yet' : 'Exam has ended');
     }
 
-    // Validate access code
+    // 验证访问码
     if (exam.accessCode && exam.accessCode !== accessCode) {
       throw new ForbiddenException('Invalid access code');
     }
 
-    // Validate allowed students
-    if (exam.allowedStudents && Array.isArray(exam.allowedStudents)) {
-      if (!exam.allowedStudents.includes(participantId)) {
-        throw new ForbiddenException('You are not allowed to take this exam');
-      }
+    // 验证白名单
+    if (exam.allowedStudents && Array.isArray(exam.allowedStudents) && !exam.allowedStudents.includes(participantId)) {
+      throw new ForbiddenException('You are not allowed to take this exam');
     }
 
-    // Check if already started (查找未完成的会话，防止并发访问)
+    // 查找未完成会话（防止并发）
     const existingResult = await this.db.examResult.findFirst({
-      where: {
-        examId,
-        participantId,
-        isCompleted: false,
-      },
+      where: { examId, participantId, isCompleted: false },
       orderBy: { startedAt: 'desc' },
     });
 
+    // ✨ 从快照读取题目
+    const questions = exam.questionsSnapshot as any[];
+
     if (existingResult) {
-      // 存在未完成的会话，返回现有结果（防止并发访问）
       return {
         examResult: existingResult,
-        questions: exam.paper.questions,
+        questions,
         exam: {
           id: exam.id,
           title: exam.title,
@@ -86,21 +74,19 @@ export class ResultsService {
       };
     }
 
-    // 检查是否达到最大尝试次数（支持重复参加）
+    // 检查重考次数
     const completedCount = await this.db.examResult.count({
       where: { examId, participantId, isCompleted: true },
     });
 
     if (completedCount >= exam.maxAttempts) {
-      throw new BadRequestException(
-        `Maximum attempts (${exam.maxAttempts}) reached for this exam`,
-      );
+      throw new BadRequestException(`Maximum attempts (${exam.maxAttempts}) reached for this exam`);
     }
 
-    // Calculate max score
-    const maxScore = exam.paper.questions.reduce((sum, q) => sum + q.points, 0);
+    // ✨ 计算总分（基于快照）
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
 
-    // Create new exam result
+    // 创建考试结果
     const examResult = await this.db.examResult.create({
       data: {
         examId,
@@ -113,10 +99,9 @@ export class ResultsService {
       },
     });
 
-    // Return standardized response format
     return {
       examResult,
-      questions: exam.paper.questions,
+      questions,
       exam: {
         id: exam.id,
         title: exam.title,
@@ -141,20 +126,10 @@ export class ResultsService {
       hesitationScore,
     } = submitAnswerDto;
 
-    // Verify exam result exists and is not completed
+    // 验证考试结果存在且未提交
     const examResult = await this.db.examResult.findUnique({
       where: { id: examResultId },
-      include: {
-        exam: {
-          include: {
-            paper: {
-              include: {
-                questions: { where: { deletedAt: null } },
-              },
-            },
-          },
-        },
-      },
+      include: { exam: true },
     });
 
     if (!examResult) {
@@ -165,67 +140,49 @@ export class ResultsService {
       throw new BadRequestException('Exam already submitted');
     }
 
-    // Find question
-    const question = examResult.exam.paper.questions.find(q => q.id === questionId);
+    // ✨ 从快照获取题目
+    const questions = examResult.exam.questionsSnapshot as any[];
+    const question = questions.find(q => q.id === questionId);
+
     if (!question) {
-      throw new NotFoundException('Question not found in this exam');
+      throw new NotFoundException('Question not found in exam snapshot');
     }
 
-    // Auto-score if possible
-    let isCorrect: boolean | null = null;
+    // ✨ 基于score计分
     let points = 0;
+    let maxPoints = question.points;
 
-    if (question.type === 'SINGLE_CHOICE' || question.type === 'MULTIPLE_CHOICE') {
-      const correctOptions = (question.options as any[])
-        ?.filter(opt => opt.isCorrect)
-        .map(opt => opt.id) || [];
-
-      if (selectedOptions) {
-        const selectedSet = new Set(selectedOptions);
-        const correctSet = new Set(correctOptions);
-
-        isCorrect = selectedSet.size === correctSet.size &&
-          [...selectedSet].every(opt => correctSet.has(opt));
-
-        if (isCorrect) {
-          points = question.points;
-        }
-      }
+    if (question.type === 'SINGLE_CHOICE' && selectedOptions?.[0]) {
+      // 单选：直接使用选中选项的score
+      const selected = (question.options as any[])?.find(opt => opt.id === selectedOptions[0]);
+      points = selected?.score || 0;
+    } else if (question.type === 'MULTIPLE_CHOICE' && selectedOptions?.length) {
+      // 多选：累加所有选中选项的score（允许超分）
+      points = selectedOptions.reduce((sum, optId) => {
+        const opt = (question.options as any[])?.find(o => o.id === optId);
+        return sum + (opt?.score || 0);
+      }, 0);
     }
-    // TEXT and ESSAY questions: isCorrect = null, need manual grading
+    // TEXT/ESSAY: points保持0，需要教师手动评分
 
-    // Upsert answer
+    // 保存答案
+    const answerData = {
+      selectedOptions: selectedOptions as any,
+      textAnswer,
+      points,
+      maxPoints,
+      questionDisplayedAt: questionDisplayedAt ? new Date(questionDisplayedAt) : undefined,
+      firstInteractionAt: firstInteractionAt ? new Date(firstInteractionAt) : undefined,
+      lastModifiedAt: lastModifiedAt ? new Date(lastModifiedAt) : new Date(),
+      totalViewTime,
+      interactionCount: interactionCount || 0,
+      hesitationScore,
+    };
+
     return this.db.answer.upsert({
-      where: {
-        examResultId_questionId: { examResultId, questionId },
-      },
-      create: {
-        examResultId,
-        questionId,
-        selectedOptions: selectedOptions as any,
-        textAnswer,
-        isCorrect,
-        points,
-        // ⭐ Answer timing fields (for AI analysis correlation)
-        questionDisplayedAt: questionDisplayedAt ? new Date(questionDisplayedAt) : undefined,
-        firstInteractionAt: firstInteractionAt ? new Date(firstInteractionAt) : undefined,
-        lastModifiedAt: lastModifiedAt ? new Date(lastModifiedAt) : undefined,
-        totalViewTime,
-        interactionCount: interactionCount || 0,
-        hesitationScore,
-      },
-      update: {
-        selectedOptions: selectedOptions as any,
-        textAnswer,
-        isCorrect,
-        points,
-        answeredAt: new Date(),  // 记录最后修改时间
-        // ⭐ Update timing fields on subsequent saves
-        lastModifiedAt: lastModifiedAt ? new Date(lastModifiedAt) : new Date(),
-        totalViewTime,
-        interactionCount: interactionCount || 0,
-        hesitationScore,
-      },
+      where: { examResultId_questionId: { examResultId, questionId } },
+      create: { examResultId, questionId, ...answerData },
+      update: { ...answerData, answeredAt: new Date() },
     });
   }
 
@@ -394,23 +351,8 @@ export class ResultsService {
     const result = await this.db.examResult.findUnique({
       where: { id, deletedAt: null },
       include: {
-        exam: {
-          include: {
-            paper: {
-              include: {
-                questions: {
-                  where: { deletedAt: null },
-                  orderBy: { order: 'asc' },
-                },
-              },
-            },
-          },
-        },
-        answers: {
-          include: {
-            question: true,
-          },
-        },
+        exam: true,  // ✨ 只需exam（包含快照）
+        answers: { include: { question: true } },
         student: true,
       },
     });
@@ -426,33 +368,31 @@ export class ResultsService {
     return result;
   }
 
-  async updateScore(id: string, teacherId: string, questionId: string, points: number, isCorrect: boolean) {
-    // Verify ownership
+  async updateScore(id: string, teacherId: string, questionId: string, points: number) {
+    // 验证权限
     const result = await this.findById(id, teacherId);
 
-    // Find answer
+    // 查找答案
     const answer = result.answers.find(a => a.questionId === questionId);
     if (!answer) {
       throw new NotFoundException('Answer not found');
     }
 
-    // Update answer score
+    // ✨ 更新分数（移除isCorrect参数）
     await this.db.answer.update({
       where: { id: answer.id },
-      data: { points, isCorrect },
+      data: { points },
     });
 
-    // Recalculate total score
+    // 重新计算总分
     const answers = await this.db.answer.findMany({
       where: { examResultId: id },
     });
 
     const totalScore = answers.reduce((sum, a) => sum + a.points, 0);
-    const percentage = result.maxScore > 0
-      ? (totalScore / result.maxScore) * 100
-      : 0;
+    const percentage = result.maxScore > 0 ? (totalScore / result.maxScore) * 100 : 0;
 
-    // Update exam result
+    // 更新考试结果
     return this.db.examResult.update({
       where: { id },
       data: { totalScore, percentage },

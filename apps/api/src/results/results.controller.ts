@@ -133,10 +133,10 @@ export class ResultsController {
   @ApiResponse({ status: 200, description: 'Score updated successfully' })
   async updateScore(
     @Param('id') id: string,
-    @Body() body: { questionId: string; points: number; isCorrect: boolean },
+    @Body() body: { questionId: string; points: number },
     @Request() req,
   ) {
-    return this.resultsService.updateScore(id, req.user.id, body.questionId, body.points, body.isCorrect);
+    return this.resultsService.updateScore(id, req.user.id, body.questionId, body.points);
   }
 
   @Post(':id/flag-invalid')

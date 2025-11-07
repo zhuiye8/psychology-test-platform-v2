@@ -171,3 +171,5 @@ test_*.json
 
 # SQL脚本（临时）
 fix_*.sql
+
+心理测评报告/

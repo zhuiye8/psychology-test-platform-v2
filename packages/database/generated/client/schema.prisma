@@ -115,6 +115,7 @@ model Question {
   title       String       @db.Text
   type        QuestionType
   description String?      @db.Text
+  dimension   String?      @db.VarChar(100) // ✨ 维度字段（可选，用于心理测试分类）
   explanation String?      @db.Text
 
   // Configuration
@@ -124,7 +125,7 @@ model Question {
   displayCondition Json? // Conditional logic
 
   // Options for choice questions
-  options Json? // Array of {id, text, isCorrect}
+  options Json? // Array of {id, text, score}
 
   // System fields
   createdAt DateTime  @default(now())
@@ -178,6 +179,11 @@ model Exam {
   // Status management
   status ExamStatus @default(DRAFT)
 
+  // ✨ Snapshot mechanism (created on Exam creation)
+  paperSnapshot     Json? // Paper config snapshot {title, description, timeLimit}
+  questionsSnapshot Json? // Questions array snapshot (complete with options and scores)
+  snapshotCreatedAt DateTime? // Snapshot creation timestamp
+
   // System fields
   teacherId String
   teacher   Teacher @relation(fields: [teacherId], references: [id])
@@ -195,6 +201,7 @@ model Exam {
   @@index([startTime, endTime])
   @@index([accessCode])
   @@index([deletedAt])
+  @@index([snapshotCreatedAt])
   @@map("exams")
 }
 
@@ -264,9 +271,9 @@ model Answer {
   selectedOptions Json? // Array of option IDs for choice questions
   textAnswer      String? @db.Text
 
-  // Scoring
-  isCorrect Boolean? // Null for subjective questions
-  points    Float    @default(0)
+  // ✨ Unified scoring system (based on option.score)
+  points    Float @default(0) // Actual points earned
+  maxPoints Float @default(0) // Question max points (for percentage calculation)
 
   // ⭐ Answer timing fields (for AI analysis correlation)
   questionDisplayedAt DateTime? // When question was first shown to student

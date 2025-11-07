@@ -5572,6 +5572,7 @@ export namespace Prisma {
     title: string | null
     type: $Enums.QuestionType | null
     description: string | null
+    dimension: string | null
     explanation: string | null
     order: number | null
     required: boolean | null
@@ -5587,6 +5588,7 @@ export namespace Prisma {
     title: string | null
     type: $Enums.QuestionType | null
     description: string | null
+    dimension: string | null
     explanation: string | null
     order: number | null
     required: boolean | null
@@ -5602,6 +5604,7 @@ export namespace Prisma {
     title: number
     type: number
     description: number
+    dimension: number
     explanation: number
     order: number
     required: number
@@ -5631,6 +5634,7 @@ export namespace Prisma {
     title?: true
     type?: true
     description?: true
+    dimension?: true
     explanation?: true
     order?: true
     required?: true
@@ -5646,6 +5650,7 @@ export namespace Prisma {
     title?: true
     type?: true
     description?: true
+    dimension?: true
     explanation?: true
     order?: true
     required?: true
@@ -5661,6 +5666,7 @@ export namespace Prisma {
     title?: true
     type?: true
     description?: true
+    dimension?: true
     explanation?: true
     order?: true
     required?: true
@@ -5765,6 +5771,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description: string | null
+    dimension: string | null
     explanation: string | null
     order: number
     required: boolean
@@ -5801,6 +5808,7 @@ export namespace Prisma {
     title?: boolean
     type?: boolean
     description?: boolean
+    dimension?: boolean
     explanation?: boolean
     order?: boolean
     required?: boolean
@@ -5821,6 +5829,7 @@ export namespace Prisma {
     title?: boolean
     type?: boolean
     description?: boolean
+    dimension?: boolean
     explanation?: boolean
     order?: boolean
     required?: boolean
@@ -5839,6 +5848,7 @@ export namespace Prisma {
     title?: boolean
     type?: boolean
     description?: boolean
+    dimension?: boolean
     explanation?: boolean
     order?: boolean
     required?: boolean
@@ -5871,6 +5881,7 @@ export namespace Prisma {
       title: string
       type: $Enums.QuestionType
       description: string | null
+      dimension: string | null
       explanation: string | null
       order: number
       required: boolean
@@ -6280,6 +6291,7 @@ export namespace Prisma {
     readonly title: FieldRef<"Question", 'String'>
     readonly type: FieldRef<"Question", 'QuestionType'>
     readonly description: FieldRef<"Question", 'String'>
+    readonly dimension: FieldRef<"Question", 'String'>
     readonly explanation: FieldRef<"Question", 'String'>
     readonly order: FieldRef<"Question", 'Int'>
     readonly required: FieldRef<"Question", 'Boolean'>
@@ -6677,6 +6689,7 @@ export namespace Prisma {
     requireMicrophone: boolean | null
     enableAIAnalysis: boolean | null
     status: $Enums.ExamStatus | null
+    snapshotCreatedAt: Date | null
     teacherId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6698,6 +6711,7 @@ export namespace Prisma {
     requireMicrophone: boolean | null
     enableAIAnalysis: boolean | null
     status: $Enums.ExamStatus | null
+    snapshotCreatedAt: Date | null
     teacherId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6720,6 +6734,9 @@ export namespace Prisma {
     requireMicrophone: number
     enableAIAnalysis: number
     status: number
+    paperSnapshot: number
+    questionsSnapshot: number
+    snapshotCreatedAt: number
     teacherId: number
     createdAt: number
     updatedAt: number
@@ -6753,6 +6770,7 @@ export namespace Prisma {
     requireMicrophone?: true
     enableAIAnalysis?: true
     status?: true
+    snapshotCreatedAt?: true
     teacherId?: true
     createdAt?: true
     updatedAt?: true
@@ -6774,6 +6792,7 @@ export namespace Prisma {
     requireMicrophone?: true
     enableAIAnalysis?: true
     status?: true
+    snapshotCreatedAt?: true
     teacherId?: true
     createdAt?: true
     updatedAt?: true
@@ -6796,6 +6815,9 @@ export namespace Prisma {
     requireMicrophone?: true
     enableAIAnalysis?: true
     status?: true
+    paperSnapshot?: true
+    questionsSnapshot?: true
+    snapshotCreatedAt?: true
     teacherId?: true
     createdAt?: true
     updatedAt?: true
@@ -6905,6 +6927,9 @@ export namespace Prisma {
     requireMicrophone: boolean
     enableAIAnalysis: boolean
     status: $Enums.ExamStatus
+    paperSnapshot: JsonValue | null
+    questionsSnapshot: JsonValue | null
+    snapshotCreatedAt: Date | null
     teacherId: string
     createdAt: Date
     updatedAt: Date
@@ -6946,6 +6971,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: boolean
+    paperSnapshot?: boolean
+    questionsSnapshot?: boolean
+    snapshotCreatedAt?: boolean
     teacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6972,6 +7000,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: boolean
+    paperSnapshot?: boolean
+    questionsSnapshot?: boolean
+    snapshotCreatedAt?: boolean
     teacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6996,6 +7027,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: boolean
+    paperSnapshot?: boolean
+    questionsSnapshot?: boolean
+    snapshotCreatedAt?: boolean
     teacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7036,6 +7070,9 @@ export namespace Prisma {
       requireMicrophone: boolean
       enableAIAnalysis: boolean
       status: $Enums.ExamStatus
+      paperSnapshot: Prisma.JsonValue | null
+      questionsSnapshot: Prisma.JsonValue | null
+      snapshotCreatedAt: Date | null
       teacherId: string
       createdAt: Date
       updatedAt: Date
@@ -7451,6 +7488,9 @@ export namespace Prisma {
     readonly requireMicrophone: FieldRef<"Exam", 'Boolean'>
     readonly enableAIAnalysis: FieldRef<"Exam", 'Boolean'>
     readonly status: FieldRef<"Exam", 'ExamStatus'>
+    readonly paperSnapshot: FieldRef<"Exam", 'Json'>
+    readonly questionsSnapshot: FieldRef<"Exam", 'Json'>
+    readonly snapshotCreatedAt: FieldRef<"Exam", 'DateTime'>
     readonly teacherId: FieldRef<"Exam", 'String'>
     readonly createdAt: FieldRef<"Exam", 'DateTime'>
     readonly updatedAt: FieldRef<"Exam", 'DateTime'>
@@ -9054,6 +9094,7 @@ export namespace Prisma {
 
   export type AnswerAvgAggregateOutputType = {
     points: number | null
+    maxPoints: number | null
     totalViewTime: number | null
     interactionCount: number | null
     hesitationScore: number | null
@@ -9061,6 +9102,7 @@ export namespace Prisma {
 
   export type AnswerSumAggregateOutputType = {
     points: number | null
+    maxPoints: number | null
     totalViewTime: number | null
     interactionCount: number | null
     hesitationScore: number | null
@@ -9071,8 +9113,8 @@ export namespace Prisma {
     examResultId: string | null
     questionId: string | null
     textAnswer: string | null
-    isCorrect: boolean | null
     points: number | null
+    maxPoints: number | null
     questionDisplayedAt: Date | null
     firstInteractionAt: Date | null
     lastModifiedAt: Date | null
@@ -9087,8 +9129,8 @@ export namespace Prisma {
     examResultId: string | null
     questionId: string | null
     textAnswer: string | null
-    isCorrect: boolean | null
     points: number | null
+    maxPoints: number | null
     questionDisplayedAt: Date | null
     firstInteractionAt: Date | null
     lastModifiedAt: Date | null
@@ -9104,8 +9146,8 @@ export namespace Prisma {
     questionId: number
     selectedOptions: number
     textAnswer: number
-    isCorrect: number
     points: number
+    maxPoints: number
     questionDisplayedAt: number
     firstInteractionAt: number
     lastModifiedAt: number
@@ -9119,6 +9161,7 @@ export namespace Prisma {
 
   export type AnswerAvgAggregateInputType = {
     points?: true
+    maxPoints?: true
     totalViewTime?: true
     interactionCount?: true
     hesitationScore?: true
@@ -9126,6 +9169,7 @@ export namespace Prisma {
 
   export type AnswerSumAggregateInputType = {
     points?: true
+    maxPoints?: true
     totalViewTime?: true
     interactionCount?: true
     hesitationScore?: true
@@ -9136,8 +9180,8 @@ export namespace Prisma {
     examResultId?: true
     questionId?: true
     textAnswer?: true
-    isCorrect?: true
     points?: true
+    maxPoints?: true
     questionDisplayedAt?: true
     firstInteractionAt?: true
     lastModifiedAt?: true
@@ -9152,8 +9196,8 @@ export namespace Prisma {
     examResultId?: true
     questionId?: true
     textAnswer?: true
-    isCorrect?: true
     points?: true
+    maxPoints?: true
     questionDisplayedAt?: true
     firstInteractionAt?: true
     lastModifiedAt?: true
@@ -9169,8 +9213,8 @@ export namespace Prisma {
     questionId?: true
     selectedOptions?: true
     textAnswer?: true
-    isCorrect?: true
     points?: true
+    maxPoints?: true
     questionDisplayedAt?: true
     firstInteractionAt?: true
     lastModifiedAt?: true
@@ -9273,8 +9317,8 @@ export namespace Prisma {
     questionId: string
     selectedOptions: JsonValue | null
     textAnswer: string | null
-    isCorrect: boolean | null
     points: number
+    maxPoints: number
     questionDisplayedAt: Date | null
     firstInteractionAt: Date | null
     lastModifiedAt: Date | null
@@ -9309,8 +9353,8 @@ export namespace Prisma {
     questionId?: boolean
     selectedOptions?: boolean
     textAnswer?: boolean
-    isCorrect?: boolean
     points?: boolean
+    maxPoints?: boolean
     questionDisplayedAt?: boolean
     firstInteractionAt?: boolean
     lastModifiedAt?: boolean
@@ -9328,8 +9372,8 @@ export namespace Prisma {
     questionId?: boolean
     selectedOptions?: boolean
     textAnswer?: boolean
-    isCorrect?: boolean
     points?: boolean
+    maxPoints?: boolean
     questionDisplayedAt?: boolean
     firstInteractionAt?: boolean
     lastModifiedAt?: boolean
@@ -9347,8 +9391,8 @@ export namespace Prisma {
     questionId?: boolean
     selectedOptions?: boolean
     textAnswer?: boolean
-    isCorrect?: boolean
     points?: boolean
+    maxPoints?: boolean
     questionDisplayedAt?: boolean
     firstInteractionAt?: boolean
     lastModifiedAt?: boolean
@@ -9379,8 +9423,8 @@ export namespace Prisma {
       questionId: string
       selectedOptions: Prisma.JsonValue | null
       textAnswer: string | null
-      isCorrect: boolean | null
       points: number
+      maxPoints: number
       questionDisplayedAt: Date | null
       firstInteractionAt: Date | null
       lastModifiedAt: Date | null
@@ -9788,8 +9832,8 @@ export namespace Prisma {
     readonly questionId: FieldRef<"Answer", 'String'>
     readonly selectedOptions: FieldRef<"Answer", 'Json'>
     readonly textAnswer: FieldRef<"Answer", 'String'>
-    readonly isCorrect: FieldRef<"Answer", 'Boolean'>
     readonly points: FieldRef<"Answer", 'Float'>
+    readonly maxPoints: FieldRef<"Answer", 'Float'>
     readonly questionDisplayedAt: FieldRef<"Answer", 'DateTime'>
     readonly firstInteractionAt: FieldRef<"Answer", 'DateTime'>
     readonly lastModifiedAt: FieldRef<"Answer", 'DateTime'>
@@ -17271,6 +17315,7 @@ export namespace Prisma {
     title: 'title',
     type: 'type',
     description: 'description',
+    dimension: 'dimension',
     explanation: 'explanation',
     order: 'order',
     required: 'required',
@@ -17300,6 +17345,9 @@ export namespace Prisma {
     requireMicrophone: 'requireMicrophone',
     enableAIAnalysis: 'enableAIAnalysis',
     status: 'status',
+    paperSnapshot: 'paperSnapshot',
+    questionsSnapshot: 'questionsSnapshot',
+    snapshotCreatedAt: 'snapshotCreatedAt',
     teacherId: 'teacherId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -17341,8 +17389,8 @@ export namespace Prisma {
     questionId: 'questionId',
     selectedOptions: 'selectedOptions',
     textAnswer: 'textAnswer',
-    isCorrect: 'isCorrect',
     points: 'points',
+    maxPoints: 'maxPoints',
     questionDisplayedAt: 'questionDisplayedAt',
     firstInteractionAt: 'firstInteractionAt',
     lastModifiedAt: 'lastModifiedAt',
@@ -18012,6 +18060,7 @@ export namespace Prisma {
     title?: StringFilter<"Question"> | string
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     description?: StringNullableFilter<"Question"> | string | null
+    dimension?: StringNullableFilter<"Question"> | string | null
     explanation?: StringNullableFilter<"Question"> | string | null
     order?: IntFilter<"Question"> | number
     required?: BoolFilter<"Question"> | boolean
@@ -18031,6 +18080,7 @@ export namespace Prisma {
     title?: SortOrder
     type?: SortOrder
     description?: SortOrderInput | SortOrder
+    dimension?: SortOrderInput | SortOrder
     explanation?: SortOrderInput | SortOrder
     order?: SortOrder
     required?: SortOrder
@@ -18053,6 +18103,7 @@ export namespace Prisma {
     title?: StringFilter<"Question"> | string
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     description?: StringNullableFilter<"Question"> | string | null
+    dimension?: StringNullableFilter<"Question"> | string | null
     explanation?: StringNullableFilter<"Question"> | string | null
     order?: IntFilter<"Question"> | number
     required?: BoolFilter<"Question"> | boolean
@@ -18072,6 +18123,7 @@ export namespace Prisma {
     title?: SortOrder
     type?: SortOrder
     description?: SortOrderInput | SortOrder
+    dimension?: SortOrderInput | SortOrder
     explanation?: SortOrderInput | SortOrder
     order?: SortOrder
     required?: SortOrder
@@ -18097,6 +18149,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Question"> | string
     type?: EnumQuestionTypeWithAggregatesFilter<"Question"> | $Enums.QuestionType
     description?: StringNullableWithAggregatesFilter<"Question"> | string | null
+    dimension?: StringNullableWithAggregatesFilter<"Question"> | string | null
     explanation?: StringNullableWithAggregatesFilter<"Question"> | string | null
     order?: IntWithAggregatesFilter<"Question"> | number
     required?: BoolWithAggregatesFilter<"Question"> | boolean
@@ -18126,6 +18179,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFilter<"Exam"> | boolean
     enableAIAnalysis?: BoolFilter<"Exam"> | boolean
     status?: EnumExamStatusFilter<"Exam"> | $Enums.ExamStatus
+    paperSnapshot?: JsonNullableFilter<"Exam">
+    questionsSnapshot?: JsonNullableFilter<"Exam">
+    snapshotCreatedAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     teacherId?: StringFilter<"Exam"> | string
     createdAt?: DateTimeFilter<"Exam"> | Date | string
     updatedAt?: DateTimeFilter<"Exam"> | Date | string
@@ -18151,6 +18207,9 @@ export namespace Prisma {
     requireMicrophone?: SortOrder
     enableAIAnalysis?: SortOrder
     status?: SortOrder
+    paperSnapshot?: SortOrderInput | SortOrder
+    questionsSnapshot?: SortOrderInput | SortOrder
+    snapshotCreatedAt?: SortOrderInput | SortOrder
     teacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18179,6 +18238,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFilter<"Exam"> | boolean
     enableAIAnalysis?: BoolFilter<"Exam"> | boolean
     status?: EnumExamStatusFilter<"Exam"> | $Enums.ExamStatus
+    paperSnapshot?: JsonNullableFilter<"Exam">
+    questionsSnapshot?: JsonNullableFilter<"Exam">
+    snapshotCreatedAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     teacherId?: StringFilter<"Exam"> | string
     createdAt?: DateTimeFilter<"Exam"> | Date | string
     updatedAt?: DateTimeFilter<"Exam"> | Date | string
@@ -18204,6 +18266,9 @@ export namespace Prisma {
     requireMicrophone?: SortOrder
     enableAIAnalysis?: SortOrder
     status?: SortOrder
+    paperSnapshot?: SortOrderInput | SortOrder
+    questionsSnapshot?: SortOrderInput | SortOrder
+    snapshotCreatedAt?: SortOrderInput | SortOrder
     teacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18234,6 +18299,9 @@ export namespace Prisma {
     requireMicrophone?: BoolWithAggregatesFilter<"Exam"> | boolean
     enableAIAnalysis?: BoolWithAggregatesFilter<"Exam"> | boolean
     status?: EnumExamStatusWithAggregatesFilter<"Exam"> | $Enums.ExamStatus
+    paperSnapshot?: JsonNullableWithAggregatesFilter<"Exam">
+    questionsSnapshot?: JsonNullableWithAggregatesFilter<"Exam">
+    snapshotCreatedAt?: DateTimeNullableWithAggregatesFilter<"Exam"> | Date | string | null
     teacherId?: StringWithAggregatesFilter<"Exam"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Exam"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Exam"> | Date | string
@@ -18389,8 +18457,8 @@ export namespace Prisma {
     questionId?: StringFilter<"Answer"> | string
     selectedOptions?: JsonNullableFilter<"Answer">
     textAnswer?: StringNullableFilter<"Answer"> | string | null
-    isCorrect?: BoolNullableFilter<"Answer"> | boolean | null
     points?: FloatFilter<"Answer"> | number
+    maxPoints?: FloatFilter<"Answer"> | number
     questionDisplayedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     firstInteractionAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     lastModifiedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
@@ -18408,8 +18476,8 @@ export namespace Prisma {
     questionId?: SortOrder
     selectedOptions?: SortOrderInput | SortOrder
     textAnswer?: SortOrderInput | SortOrder
-    isCorrect?: SortOrderInput | SortOrder
     points?: SortOrder
+    maxPoints?: SortOrder
     questionDisplayedAt?: SortOrderInput | SortOrder
     firstInteractionAt?: SortOrderInput | SortOrder
     lastModifiedAt?: SortOrderInput | SortOrder
@@ -18431,8 +18499,8 @@ export namespace Prisma {
     questionId?: StringFilter<"Answer"> | string
     selectedOptions?: JsonNullableFilter<"Answer">
     textAnswer?: StringNullableFilter<"Answer"> | string | null
-    isCorrect?: BoolNullableFilter<"Answer"> | boolean | null
     points?: FloatFilter<"Answer"> | number
+    maxPoints?: FloatFilter<"Answer"> | number
     questionDisplayedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     firstInteractionAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     lastModifiedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
@@ -18450,8 +18518,8 @@ export namespace Prisma {
     questionId?: SortOrder
     selectedOptions?: SortOrderInput | SortOrder
     textAnswer?: SortOrderInput | SortOrder
-    isCorrect?: SortOrderInput | SortOrder
     points?: SortOrder
+    maxPoints?: SortOrder
     questionDisplayedAt?: SortOrderInput | SortOrder
     firstInteractionAt?: SortOrderInput | SortOrder
     lastModifiedAt?: SortOrderInput | SortOrder
@@ -18475,8 +18543,8 @@ export namespace Prisma {
     questionId?: StringWithAggregatesFilter<"Answer"> | string
     selectedOptions?: JsonNullableWithAggregatesFilter<"Answer">
     textAnswer?: StringNullableWithAggregatesFilter<"Answer"> | string | null
-    isCorrect?: BoolNullableWithAggregatesFilter<"Answer"> | boolean | null
     points?: FloatWithAggregatesFilter<"Answer"> | number
+    maxPoints?: FloatWithAggregatesFilter<"Answer"> | number
     questionDisplayedAt?: DateTimeNullableWithAggregatesFilter<"Answer"> | Date | string | null
     firstInteractionAt?: DateTimeNullableWithAggregatesFilter<"Answer"> | Date | string | null
     lastModifiedAt?: DateTimeNullableWithAggregatesFilter<"Answer"> | Date | string | null
@@ -19443,6 +19511,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -19462,6 +19531,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -19479,6 +19549,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -19498,6 +19569,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -19516,6 +19588,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -19532,6 +19605,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -19549,6 +19623,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -19574,6 +19649,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -19598,6 +19676,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     teacherId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19620,6 +19701,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19644,6 +19728,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19667,6 +19754,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     teacherId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19688,6 +19778,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19709,6 +19802,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19884,8 +19980,8 @@ export namespace Prisma {
     id?: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -19903,8 +19999,8 @@ export namespace Prisma {
     questionId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -19918,8 +20014,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19937,8 +20033,8 @@ export namespace Prisma {
     questionId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19954,8 +20050,8 @@ export namespace Prisma {
     questionId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -19969,8 +20065,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19986,8 +20082,8 @@ export namespace Prisma {
     questionId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21106,6 +21202,7 @@ export namespace Prisma {
     title?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    dimension?: SortOrder
     explanation?: SortOrder
     order?: SortOrder
     required?: SortOrder
@@ -21128,6 +21225,7 @@ export namespace Prisma {
     title?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    dimension?: SortOrder
     explanation?: SortOrder
     order?: SortOrder
     required?: SortOrder
@@ -21143,6 +21241,7 @@ export namespace Prisma {
     title?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    dimension?: SortOrder
     explanation?: SortOrder
     order?: SortOrder
     required?: SortOrder
@@ -21230,6 +21329,9 @@ export namespace Prisma {
     requireMicrophone?: SortOrder
     enableAIAnalysis?: SortOrder
     status?: SortOrder
+    paperSnapshot?: SortOrder
+    questionsSnapshot?: SortOrder
+    snapshotCreatedAt?: SortOrder
     teacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21256,6 +21358,7 @@ export namespace Prisma {
     requireMicrophone?: SortOrder
     enableAIAnalysis?: SortOrder
     status?: SortOrder
+    snapshotCreatedAt?: SortOrder
     teacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21277,6 +21380,7 @@ export namespace Prisma {
     requireMicrophone?: SortOrder
     enableAIAnalysis?: SortOrder
     status?: SortOrder
+    snapshotCreatedAt?: SortOrder
     teacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21426,11 +21530,6 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type BoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
   export type FloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -21463,8 +21562,8 @@ export namespace Prisma {
     questionId?: SortOrder
     selectedOptions?: SortOrder
     textAnswer?: SortOrder
-    isCorrect?: SortOrder
     points?: SortOrder
+    maxPoints?: SortOrder
     questionDisplayedAt?: SortOrder
     firstInteractionAt?: SortOrder
     lastModifiedAt?: SortOrder
@@ -21476,6 +21575,7 @@ export namespace Prisma {
 
   export type AnswerAvgOrderByAggregateInput = {
     points?: SortOrder
+    maxPoints?: SortOrder
     totalViewTime?: SortOrder
     interactionCount?: SortOrder
     hesitationScore?: SortOrder
@@ -21486,8 +21586,8 @@ export namespace Prisma {
     examResultId?: SortOrder
     questionId?: SortOrder
     textAnswer?: SortOrder
-    isCorrect?: SortOrder
     points?: SortOrder
+    maxPoints?: SortOrder
     questionDisplayedAt?: SortOrder
     firstInteractionAt?: SortOrder
     lastModifiedAt?: SortOrder
@@ -21502,8 +21602,8 @@ export namespace Prisma {
     examResultId?: SortOrder
     questionId?: SortOrder
     textAnswer?: SortOrder
-    isCorrect?: SortOrder
     points?: SortOrder
+    maxPoints?: SortOrder
     questionDisplayedAt?: SortOrder
     firstInteractionAt?: SortOrder
     lastModifiedAt?: SortOrder
@@ -21515,17 +21615,10 @@ export namespace Prisma {
 
   export type AnswerSumOrderByAggregateInput = {
     points?: SortOrder
+    maxPoints?: SortOrder
     totalViewTime?: SortOrder
     interactionCount?: SortOrder
     hesitationScore?: SortOrder
-  }
-
-  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -22593,10 +22686,6 @@ export namespace Prisma {
     connect?: QuestionWhereUniqueInput
   }
 
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
-  }
-
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -23106,19 +23195,6 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type NestedBoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
-  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
-  }
-
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -23317,6 +23393,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -23340,6 +23419,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -23426,6 +23508,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFilter<"Exam"> | boolean
     enableAIAnalysis?: BoolFilter<"Exam"> | boolean
     status?: EnumExamStatusFilter<"Exam"> | $Enums.ExamStatus
+    paperSnapshot?: JsonNullableFilter<"Exam">
+    questionsSnapshot?: JsonNullableFilter<"Exam">
+    snapshotCreatedAt?: DateTimeNullableFilter<"Exam"> | Date | string | null
     teacherId?: StringFilter<"Exam"> | string
     createdAt?: DateTimeFilter<"Exam"> | Date | string
     updatedAt?: DateTimeFilter<"Exam"> | Date | string
@@ -23578,6 +23663,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -23595,6 +23681,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -23631,6 +23718,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -23653,6 +23743,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     teacherId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -23743,6 +23836,7 @@ export namespace Prisma {
     title?: StringFilter<"Question"> | string
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     description?: StringNullableFilter<"Question"> | string | null
+    dimension?: StringNullableFilter<"Question"> | string | null
     explanation?: StringNullableFilter<"Question"> | string | null
     order?: IntFilter<"Question"> | number
     required?: BoolFilter<"Question"> | boolean
@@ -23813,8 +23907,8 @@ export namespace Prisma {
     id?: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -23830,8 +23924,8 @@ export namespace Prisma {
     examResultId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -23921,8 +24015,8 @@ export namespace Prisma {
     questionId?: StringFilter<"Answer"> | string
     selectedOptions?: JsonNullableFilter<"Answer">
     textAnswer?: StringNullableFilter<"Answer"> | string | null
-    isCorrect?: BoolNullableFilter<"Answer"> | boolean | null
     points?: FloatFilter<"Answer"> | number
+    maxPoints?: FloatFilter<"Answer"> | number
     questionDisplayedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     firstInteractionAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
     lastModifiedAt?: DateTimeNullableFilter<"Answer"> | Date | string | null
@@ -24192,6 +24286,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -24215,6 +24312,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     teacherId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24264,8 +24364,8 @@ export namespace Prisma {
     id?: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -24281,8 +24381,8 @@ export namespace Prisma {
     questionId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -24415,6 +24515,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24438,6 +24541,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24658,6 +24764,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -24676,6 +24783,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -24767,6 +24875,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -24785,6 +24894,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -25531,6 +25641,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -25600,6 +25713,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25623,6 +25739,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25645,6 +25764,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25746,6 +25868,7 @@ export namespace Prisma {
     title: string
     type: $Enums.QuestionType
     description?: string | null
+    dimension?: string | null
     explanation?: string | null
     order: number
     required?: boolean
@@ -25771,6 +25894,9 @@ export namespace Prisma {
     requireMicrophone?: boolean
     enableAIAnalysis?: boolean
     status?: $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: Date | string | null
     teacherId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25783,6 +25909,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -25800,6 +25927,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -25817,6 +25945,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    dimension?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     required?: BoolFieldUpdateOperationsInput | boolean
@@ -25842,6 +25971,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25864,6 +25996,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25886,6 +26021,9 @@ export namespace Prisma {
     requireMicrophone?: BoolFieldUpdateOperationsInput | boolean
     enableAIAnalysis?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumExamStatusFieldUpdateOperationsInput | $Enums.ExamStatus
+    paperSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    questionsSnapshot?: NullableJsonNullValueInput | InputJsonValue
+    snapshotCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25898,8 +26036,8 @@ export namespace Prisma {
     examResultId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -25913,8 +26051,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25930,8 +26068,8 @@ export namespace Prisma {
     examResultId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25946,8 +26084,8 @@ export namespace Prisma {
     examResultId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26052,8 +26190,8 @@ export namespace Prisma {
     questionId: string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: string | null
-    isCorrect?: boolean | null
     points?: number
+    maxPoints?: number
     questionDisplayedAt?: Date | string | null
     firstInteractionAt?: Date | string | null
     lastModifiedAt?: Date | string | null
@@ -26067,8 +26205,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26084,8 +26222,8 @@ export namespace Prisma {
     questionId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26100,8 +26238,8 @@ export namespace Prisma {
     questionId?: StringFieldUpdateOperationsInput | string
     selectedOptions?: NullableJsonNullValueInput | InputJsonValue
     textAnswer?: NullableStringFieldUpdateOperationsInput | string | null
-    isCorrect?: NullableBoolFieldUpdateOperationsInput | boolean | null
     points?: FloatFieldUpdateOperationsInput | number
+    maxPoints?: FloatFieldUpdateOperationsInput | number
     questionDisplayedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstInteractionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastModifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
