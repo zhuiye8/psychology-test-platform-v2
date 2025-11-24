@@ -28,11 +28,19 @@ export interface FaceDetectionStatusProps {
   faceCount?: number;
 }
 
+interface StatusConfig {
+  icon: typeof SearchOutlined;
+  text: string;
+  color: string;
+  bgColor: string;
+  spin?: boolean;
+}
+
 // ============================================================================
 // 状态配置
 // ============================================================================
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<FaceDetectionStatusProps['status'], StatusConfig> = {
   idle: {
     icon: SearchOutlined,
     text: '等待开始分析...',

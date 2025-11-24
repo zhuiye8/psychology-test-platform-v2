@@ -203,9 +203,9 @@ export class WebRTCPublisher {
           if (!params.encodings || params.encodings.length === 0) {
             params.encodings = [{}];
           }
-          params.encodings[0].maxBitrate = opts.maxBitrate ?? 6_000_000; // 6Mbps
-          params.encodings[0].maxFramerate = opts.maxFramerate ?? 60;
-          params.encodings[0].scaleResolutionDownBy = 1; // 不降分辨率
+          params.encodings[0]!.maxBitrate = opts.maxBitrate ?? 6_000_000; // 6Mbps
+          params.encodings[0]!.maxFramerate = opts.maxFramerate ?? 60;
+          params.encodings[0]!.scaleResolutionDownBy = 1; // 不降分辨率
           (params as any).degradationPreference = 'maintain-resolution'; // 保持分辨率
           await sender.setParameters(params);
           console.log('[Publisher] 编码参数已设置');

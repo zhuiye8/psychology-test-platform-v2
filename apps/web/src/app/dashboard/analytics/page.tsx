@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
           // 构建AI数据映射
           const aiMap: Record<string, AiAggregate> = {};
           aiAggregates.forEach((result) => {
-            if (result.status === 'fulfilled' && result.value) {
+            if (result.status === 'fulfilled' && result.value && result.value.aggregate) {
               aiMap[result.value.id] = result.value.aggregate;
             }
           });

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Typography, Spin } from 'antd';
-import { UserOutlined, LockOutlined, BookOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Typography, Spin } from 'antd';
+import { BookOutlined } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
+import styles from './LoginPage.module.css';
 
 const { Title, Text } = Typography;
 
@@ -24,6 +25,18 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   }, [user, isLoading, router]);
+
+  // 登录页独占视口，禁用滚动
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
 
   // 加载中或已登录显示loading
   if (isLoading || user) {
@@ -49,81 +62,78 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <BookOutlined className="text-2xl text-white" />
+    <div className={styles.scene}>
+      <div className={styles.glow} />
+      <div className={styles.blur} />
+      <div className={styles.card}>
+        <div className={styles.cardHead}>
+          <div className={styles.logo}>
+            <BookOutlined />
           </div>
-          <Title level={2} className="text-gray-800 mb-2">
-            心理测试平台
-          </Title>
-          <Text className="text-gray-600">
-            教师管理系统
-          </Text>
+          <div>
+            <Text className={styles.tagline}>AI 心理测评平台</Text>
+            <Title level={3} className={styles.title}>
+              欢迎回来，开启今日心理守护
+            </Title>
+          </div>
         </div>
+        <Text className={styles.subtitle}>
+          智能监测考试环境与学生状态，让测评过程更安心、更高效。
+        </Text>
 
-        <Card
-          className="shadow-strong border-0"
-          styles={{ body: { padding: '32px' } }}
+        <Form
+          name="login"
+          layout="vertical"
+          size="large"
+          onFinish={handleSubmit}
+          autoComplete="off"
+          className={styles.form}
         >
-          <Form
-            name="login"
-            onFinish={handleSubmit}
-            autoComplete="off"
-            size="large"
+          <Form.Item
+            label="教师账号"
+            name="username"
+            rules={[
+              { required: true, message: '请输入用户名' },
+              { min: 3, message: '用户名至少3个字符' },
+            ]}
           >
-            <Form.Item
-              name="username"
-              rules={[
-                { required: true, message: '请输入用户名' },
-                { min: 3, message: '用户名至少3个字符' },
-              ]}
+            <Input
+              prefix={<span className={styles.prefixIcon}>👤</span>}
+              placeholder="示例：T2025001"
+              autoComplete="username"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="登录密码"
+            name="password"
+            rules={[
+              { required: true, message: '请输入密码' },
+              { min: 6, message: '密码至少6个字符' },
+            ]}
+          >
+            <Input.Password
+              prefix={<span className={styles.prefixIcon}>🔒</span>}
+              placeholder="请输入密码"
+              autoComplete="current-password"
+            />
+          </Form.Item>
+
+          <Form.Item className={styles.submitItem}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              className={styles.submitBtn}
             >
-              <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="用户名 (如: T2025001)"
-                autoComplete="username"
-              />
-            </Form.Item>
+              {loading ? '登录中…' : '进入控制台'}
+            </Button>
+          </Form.Item>
+        </Form>
 
-            <Form.Item
-              name="password"
-              rules={[
-                { required: true, message: '请输入密码' },
-                { min: 6, message: '密码至少6个字符' },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="密码"
-                autoComplete="current-password"
-              />
-            </Form.Item>
-
-            <Form.Item className="mb-0">
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                className="w-full h-12 text-base font-medium"
-              >
-                {loading ? '登录中...' : '登录'}
-              </Button>
-            </Form.Item>
-          </Form>
-
-          <div className="mt-6 text-center">
-            <Text className="text-gray-500 text-sm">
-              测试账号: T2025001 / 123456
-            </Text>
-          </div>
-        </Card>
-
-        <div className="text-center mt-8">
-          <Text className="text-gray-400 text-xs">
-            © 2024 心理测试平台. All rights reserved.
-          </Text>
+        <div className={styles.meta}>
+          <Text className={styles.helper}>测试账号：T2025001 / 123456</Text>
+          <Text className={styles.copy}>© 2024 心理测试平台</Text>
         </div>
       </div>
     </div>

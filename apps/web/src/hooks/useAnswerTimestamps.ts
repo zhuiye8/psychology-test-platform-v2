@@ -74,11 +74,11 @@ export function useAnswerTimestamps(currentQuestionId: string | null) {
 
       // 停止所有题目的查看计时
       Object.keys(newState).forEach((qId) => {
-        if (newState[qId].isCurrentlyViewing) {
-          const viewDuration = now - (newState[qId].lastViewStartTime || now);
-          newState[qId].accumulatedViewTime += viewDuration;
-          newState[qId].isCurrentlyViewing = false;
-          newState[qId].lastViewStartTime = undefined;
+        if (newState[qId]?.isCurrentlyViewing) {
+          const viewDuration = now - (newState[qId]?.lastViewStartTime || now);
+          newState[qId]!.accumulatedViewTime += viewDuration;
+          newState[qId]!.isCurrentlyViewing = false;
+          newState[qId]!.lastViewStartTime = undefined;
         }
       });
 
@@ -108,9 +108,9 @@ export function useAnswerTimestamps(currentQuestionId: string | null) {
 
         const newState = { ...prev };
         const now = Date.now();
-        const viewDuration = now - (newState[currentQuestionId].lastViewStartTime || now);
-        newState[currentQuestionId].accumulatedViewTime += viewDuration;
-        newState[currentQuestionId].lastViewStartTime = now;
+        const viewDuration = now - (newState[currentQuestionId]?.lastViewStartTime || now);
+        newState[currentQuestionId]!.accumulatedViewTime += viewDuration;
+        newState[currentQuestionId]!.lastViewStartTime = now;
 
         return newState;
       });

@@ -93,8 +93,10 @@ export function AiAnalysisTab({ resultId }: AiAnalysisTabProps) {
       // 获取异常事件
       try {
         const session = await aiApi.getSessionByResultId(resultId);
-        const anomaliesList = await aiApi.getAnomaliesBySessionId(session.id);
-        setAnomalies(anomaliesList);
+        if (session) {
+          const anomaliesList = await aiApi.getAnomaliesBySessionId(session.id);
+          setAnomalies(anomaliesList);
+        }
       } catch (error) {
         console.error('加载异常事件失败:', error);
         // 异常事件加载失败不影响主数据展示

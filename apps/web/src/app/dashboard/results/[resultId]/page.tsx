@@ -22,6 +22,7 @@ import {
   App,
   Spin,
   Tabs,
+  Table,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -35,8 +36,6 @@ import dayjs from 'dayjs';
 import resultsApi, { type ResultDetail } from '../../../../services/results';
 import aiApi, { type AiAnomaly } from '../../../../services/ai';
 import { AiAnalysisTab } from '../../../../components/results/AiAnalysisTab';
-import { ReportViewer } from '../../../../components/results/ReportViewer';
-import { AnomalyTimeline } from '../../../../components/results/AnomalyTimeline';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -368,10 +367,6 @@ export default function ResultDetailPage() {
           <AiAnalysisTab resultId={resultId} />
         </Tabs.TabPane>
 
-        <Tabs.TabPane tab="AI报告" key="aiReport">
-          <ReportViewer examResultId={resultId} />
-        </Tabs.TabPane>
-
         <Tabs.TabPane tab="异常事件" key="anomalies">
           {loadingAnomalies ? (
             <div className="flex items-center justify-center py-12">
@@ -381,7 +376,39 @@ export default function ResultDetailPage() {
             </div>
           ) : (
             <Card>
-              <AnomalyTimeline anomalies={anomalies} showInterpretation />
+              <Table
+                dataSource={anomalies}
+                rowKey="id"
+                columns={[
+                  {
+                    title: '时间',
+                    dataIndex: 'timestamp',
+                    key: 'timestamp',
+                    render: (timestamp: string) => dayjs(timestamp).format('HH:mm:ss'),
+                  },
+                  {
+                    title: '类型',
+                    dataIndex: 'type',
+                    key: 'type',
+                  },
+                  {
+                    title: '严重程度',
+                    dataIndex: 'severity',
+                    key: 'severity',
+                    render: (severity: string) => (
+                      <Tag color={severity === 'CRITICAL' ? 'red' : severity === 'HIGH' ? 'orange' : 'blue'}>
+                        {severity}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: '描述',
+                    dataIndex: 'description',
+                    key: 'description',
+                  },
+                ]}
+                pagination={false}
+              />
             </Card>
           )}
         </Tabs.TabPane>

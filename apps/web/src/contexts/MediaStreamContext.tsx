@@ -141,12 +141,12 @@ export function MediaStreamProvider({ children }: MediaStreamProviderProps) {
     const videoValid =
       videoStream !== null &&
       videoStream.getVideoTracks().length > 0 &&
-      videoStream.getVideoTracks()[0].readyState === 'live';
+      videoStream.getVideoTracks()[0]?.readyState === 'live';
 
     const audioValid =
       audioStream !== null &&
       audioStream.getAudioTracks().length > 0 &&
-      audioStream.getAudioTracks()[0].readyState === 'live';
+      audioStream.getAudioTracks()[0]?.readyState === 'live';
 
     return { videoValid, audioValid };
   }, [videoStream, audioStream]);

@@ -347,8 +347,8 @@ export default function ExamSessionPage() {
         console.log('[SESSION] ⏰ 延迟2秒断开AI连接，等待aggregate生成...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        console.log('[SESSION] 断开AI连接（不清理数据）');
-        aiConnection.disconnect(false);  // 不清理数据，因为已提交成功
+        console.log('[SESSION] 断开AI连接');
+        aiConnection.disconnect();  // 断开AI连接
 
         // 清除缓存
         const storageKey = `exam_session_${resultId}`;
@@ -373,7 +373,7 @@ export default function ExamSessionPage() {
           console.log('[SESSION] ⏰ 延迟2秒断开AI连接，等待aggregate生成...');
           await new Promise((resolve) => setTimeout(resolve, 2000));
 
-          aiConnection.disconnect(false);
+          aiConnection.disconnect();
           sessionStorage.removeItem(`exam_session_${resultId}`);
 
           message.success('考试已提交成功');
@@ -483,7 +483,7 @@ export default function ExamSessionPage() {
         <AIStatusPanel
           aiEnabled={!aiOptOut}
           aiAvailable={aiConnection.aiAvailable}
-          aiConfigLoading={aiConnection.configLoading}
+          aiConfigLoading={aiConnection.aiConfigLoading}
         />
       </div>
 

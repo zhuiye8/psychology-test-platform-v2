@@ -69,7 +69,7 @@ export function VideoDisplay({
     // ✅ 优先使用实时WebSocket数据（最准确）
     if (realtimeData?.face_detected !== undefined) {
       if (realtimeData.face_detected) {
-        return realtimeData.face_count > 1 ? 'multiple_faces' : 'detected';
+        return (realtimeData.face_count ?? 1) > 1 ? 'multiple_faces' : 'detected';
       }
       return 'not_detected';
     }

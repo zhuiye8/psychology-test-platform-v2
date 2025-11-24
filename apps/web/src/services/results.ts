@@ -108,6 +108,13 @@ export interface SubmitAnswerDto {
   questionId: string;
   selectedOptions?: string[];
   textAnswer?: string;
+  // 时间戳数据（用于AI分析相关性）
+  questionDisplayedAt?: string;
+  firstInteractionAt?: string;
+  lastModifiedAt?: string;
+  totalViewTime?: number;
+  interactionCount?: number;
+  hesitationScore?: number;
 }
 
 /**

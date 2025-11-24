@@ -135,8 +135,8 @@ export function useRealtimeAIStream(
       socket.on('connect_error', (err) => {
         console.error('[useRealtimeAIStream] ❌ Connection error:', {
           message: err.message,
-          description: err.description,
-          type: err.type,
+          description: (err as any).description,
+          type: (err as any).type,
           socketUrl: `${socketUrl}/ai-stream`,
           sessionId,
         });

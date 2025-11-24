@@ -211,13 +211,14 @@ export function useRealtimeAnalysis(
       setLoading(true);
       setError(null);
 
-      // 1. 启动设备并获取返回值
+      // 1. 启动设备
       console.log('[useRealtimeAnalysis] Starting device check...');
-      const deviceResult = await deviceCheck.start();
-      console.log('[useRealtimeAnalysis] Device check result:', deviceResult);
+      await deviceCheck.start();
+      console.log('[useRealtimeAnalysis] Device check completed');
 
-      if (!deviceResult.success || !deviceResult.cameraOk || !deviceResult.micOk) {
-        throw new Error('设备初始化失败：摄像头或麦克风不可用');
+      // 检查设备状态
+      if (!deviceCheck.cameraOk || !deviceCheck.micOk) {
+        throw new Error(deviceCheck.error || '设备初始化失败：摄像头或麦克风不可用');
       }
 
       // 2. 创建AI会话（本机检测模式：不传resultId，避免外键约束违反）

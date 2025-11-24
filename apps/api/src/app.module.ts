@@ -13,7 +13,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { ExamsModule } from './exams/exams.module';
 import { ResultsModule } from './results/results.module';
 import { AiModule } from './ai/ai.module';
-import { AiAnalysisModule } from './ai-analysis/ai-analysis.module';
+import { ReportsModule } from './reports/reports.module';
 import { SystemModule } from './system/system.module';
 import { HealthModule } from './health/health.module';
 import { WebrtcModule } from './webrtc/webrtc.module';
@@ -64,7 +64,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     ExamsModule,
     ResultsModule,
     AiModule,
-    AiAnalysisModule,
+    ReportsModule,
     SystemModule,
     WebrtcModule,
   ],

@@ -27,6 +27,7 @@ import {
   EyeOutlined,
   DeleteOutlined,
   FilterOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,7 +40,6 @@ import resultsApi, {
 import examsApi, { type Exam } from '../../../services/exams';
 import aiApi from '../../../services/ai';
 import { AiStatusBadge } from '../../../components/results/AiStatusBadge';
-import { GenerateReportButton } from '../../../components/results/GenerateReportButton';
 
 const { RangePicker } = DatePicker;
 
@@ -329,14 +329,12 @@ export default function ResultsPage() {
                 onClick={() => handleViewDetail(record)}
               />
             </Tooltip>
-            <Tooltip title={tooltipTitle}>
-              <GenerateReportButton
-                examResultId={record.id}
-                buttonType="link"
-                buttonSize="small"
-                iconOnly
-                disabled={!hasAiAnalysis}
-                onSuccess={() => loadResults()}
+            <Tooltip title="查看AI报告">
+              <Button
+                type="link"
+                size="small"
+                icon={<FileTextOutlined />}
+                onClick={() => router.push(`/dashboard/results/${record.id}/report`)}
               />
             </Tooltip>
             <Tooltip title="删除">

@@ -10,6 +10,11 @@ interface EmotionData {
   value: number;
 }
 
+interface EmotionDisplayData extends EmotionData {
+  displayName: string;
+  originalName: string;
+}
+
 interface EmotionPieChartProps {
   data: EmotionData[];
   type: 'audio' | 'video';
@@ -60,7 +65,7 @@ const AUDIO_EMOTION_COLORS: Record<string, string> = {
 };
 
 // 空数据占位符
-const EMPTY_PLACEHOLDER = [{ name: 'empty', value: 100, originalName: 'empty' }];
+const EMPTY_PLACEHOLDER: EmotionDisplayData[] = [{ name: 'empty', value: 100, displayName: '等待数据', originalName: 'empty' }];
 
 // ============================================================================
 // 工具函数
@@ -93,7 +98,7 @@ export function EmotionPieChart({ data, type, title }: EmotionPieChartProps) {
   };
 
   // 转换数据：添加中文显示名称，或使用占位数据
-  const displayData = hasData
+  const displayData: EmotionDisplayData[] = hasData
     ? data.map(item => ({
         ...item,
         name: translateEmotion(item.name), // ✅ 直接覆盖name用于Legend显示
@@ -103,7 +108,7 @@ export function EmotionPieChart({ data, type, title }: EmotionPieChartProps) {
     : EMPTY_PLACEHOLDER;
 
   // 计算当前主要情绪（最高置信度），仅当有数据时
-  const dominantEmotion = hasData && displayData.length > 0
+  const dominantEmotion: EmotionDisplayData | null = hasData && displayData.length > 0
     ? displayData.reduce((prev, current) => (current.value > prev.value ? current : prev))
     : null;
 

@@ -256,7 +256,10 @@ export default function AiLivePage() {
               aggregate={currentAggregate}
               session={currentSession}
               realtimeData={realtimeStream.latestData?.data_type === 'video_emotion'
-                ? realtimeStream.latestData.data
+                ? {
+                    face_detected: (realtimeStream.latestData.data as any).face_detected,
+                    face_count: (realtimeStream.latestData.data as any).face_count,
+                  }
                 : null}
             />
           </div>

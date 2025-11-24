@@ -215,7 +215,7 @@ export function useAIConnection(
               timestamp: new Date().toISOString(),
             },
             stream_info: {
-              stream_name: startResp.data.streamName,
+              stream_name: startResp.data?.streamName || '',
               participant_id: participantId,
             },
           };
@@ -294,7 +294,7 @@ export function useAIConnection(
         // 4. ⭐ 通知AI服务开始RTSP消费（使用dbSessionId确保channel一致）
         if (dbSessionId) {
           try {
-            const streamName = startResp.data.streamName; // e.g., "exam_uuid_participant_id"
+            const streamName = startResp.data?.streamName || ''; // e.g., "exam_uuid_participant_id"
             const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:5678';
             const mediamtxRtspUrl = process.env.NEXT_PUBLIC_MEDIAMTX_RTSP_URL || 'rtsp://192.168.0.95:8554';
 
